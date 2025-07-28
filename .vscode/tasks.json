@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build PokeFit App",
+			"type": "shell",
+			"command": "gradlew.bat",
+			"args": [
+				"build"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$gradle"
+			],
+			"isBackground": false
+		}
+	]
+}
