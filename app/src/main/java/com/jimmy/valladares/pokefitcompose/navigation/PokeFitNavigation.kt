@@ -8,8 +8,11 @@ import com.jimmy.valladares.pokefitcompose.presentation.home.HomeScreen
 import com.jimmy.valladares.pokefitcompose.presentation.initial_survey.InitialSurveyScreenRoot
 import com.jimmy.valladares.pokefitcompose.presentation.login.LoginScreen
 import com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection.PokemonSelectionScreenRoot
+import com.jimmy.valladares.pokefitcompose.presentation.profile.ProfileScreen
 import com.jimmy.valladares.pokefitcompose.presentation.register.RegisterScreen
+import com.jimmy.valladares.pokefitcompose.presentation.stats.StatsScreen
 import com.jimmy.valladares.pokefitcompose.presentation.steps_survey.StepsSurveyScreenRoot
+import com.jimmy.valladares.pokefitcompose.presentation.training.TrainingScreen
 import com.jimmy.valladares.pokefitcompose.presentation.training_survey.TrainingSurveyScreenRoot
 import com.jimmy.valladares.pokefitcompose.presentation.welcome.WelcomeScreenRoot
 
@@ -135,8 +138,68 @@ fun PokeFitNavigation(
             )
         }
         
+        // Main app navigation with bottom navigation
         composable<HomeDestination> {
-            HomeScreen()
+            HomeScreen(
+                onNavigateToTraining = {
+                    navController.navigate(TrainingDestination)
+                },
+                onNavigateToTab = { route ->
+                    when (route) {
+                        "home" -> {
+                            // Ya estamos en home, no hacer nada
+                        }
+                        "stats" -> navController.navigate(StatsDestination)
+                        "training" -> navController.navigate(TrainingDestination)
+                        "profile" -> navController.navigate(ProfileDestination)
+                    }
+                }
+            )
+        }
+        
+        composable<StatsDestination> {
+            StatsScreen(
+                onNavigateToTab = { route ->
+                    when (route) {
+                        "home" -> navController.navigate(HomeDestination)
+                        "stats" -> {
+                            // Ya estamos en stats, no hacer nada
+                        }
+                        "training" -> navController.navigate(TrainingDestination)
+                        "profile" -> navController.navigate(ProfileDestination)
+                    }
+                }
+            )
+        }
+        
+        composable<TrainingDestination> {
+            TrainingScreen(
+                onNavigateToTab = { route ->
+                    when (route) {
+                        "home" -> navController.navigate(HomeDestination)
+                        "stats" -> navController.navigate(StatsDestination)
+                        "training" -> {
+                            // Ya estamos en training, no hacer nada
+                        }
+                        "profile" -> navController.navigate(ProfileDestination)
+                    }
+                }
+            )
+        }
+        
+        composable<ProfileDestination> {
+            ProfileScreen(
+                onNavigateToTab = { route ->
+                    when (route) {
+                        "home" -> navController.navigate(HomeDestination)
+                        "stats" -> navController.navigate(StatsDestination)
+                        "training" -> navController.navigate(TrainingDestination)
+                        "profile" -> {
+                            // Ya estamos en profile, no hacer nada
+                        }
+                    }
+                }
+            )
         }
     }
 }

@@ -27,3 +27,12 @@ data object PokemonSelectionDestination : Destinations
 
 @Serializable
 data object HomeDestination : Destinations
+
+@Serializable
+data object StatsDestination : Destinations
+
+@Serializable
+data object TrainingDestination : Destinations
+
+@Serializable
+data object ProfileDestination : Destinations

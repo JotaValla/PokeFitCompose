@@ -2,6 +2,7 @@ package com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimmy.valladares.pokefitcompose.data.local.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -13,7 +14,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PokemonSelectionViewModel @Inject constructor() : ViewModel() {
+class PokemonSelectionViewModel @Inject constructor(
+    private val userPreferences: UserPreferences
+) : ViewModel() {
     
     private val _state = MutableStateFlow(PokemonSelectionState())
     val state = _state.asStateFlow()
@@ -56,6 +59,14 @@ class PokemonSelectionViewModel @Inject constructor() : ViewModel() {
                 error = null
             )
         }
+        
+        // Guardar la selección en UserPreferences
+        val pokemonKey = when (pokemon) {
+            Pokemon.TOTODILE -> "totodile"
+            Pokemon.EEVEE -> "eevee"
+            Pokemon.PIPLUP -> "piplup"
+        }
+        userPreferences.setSelectedPokemon(pokemonKey)
         
         // Auto-navegación después de seleccionar Pokémon con feedback visual
         viewModelScope.launch {
