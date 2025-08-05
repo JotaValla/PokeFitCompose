@@ -12,8 +12,8 @@ val PokeFitDarkGray = Color(0xFF37474F)
 val PokeFitGreen = Color(0xFF388E3C)
 
 // Gradiente para el fondo de Welcome
-val GradientStart = Color(0xFF0D47A1) // Azul marino oscuro
-val GradientEnd = Color(0xFF7B1FA2)   // Púrpura
+val GradientStart = Color(0xFF212531) // Azul marino oscuro
+val GradientEnd = Color(0xFF4B3A70)   // Púrpura
 
 // Dark theme colors
 val DarkSurface = Color(0xFF121212)

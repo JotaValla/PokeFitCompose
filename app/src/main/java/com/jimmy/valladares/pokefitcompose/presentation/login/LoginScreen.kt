@@ -29,6 +29,7 @@ import com.jimmy.valladares.pokefitcompose.R
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientEnd
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientStart
 import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitComposeTheme
+import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitGray
 
 @Composable
 fun LoginScreen(
@@ -87,7 +88,7 @@ fun LoginScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp
                     ),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = PokeFitGray,
                     textAlign = TextAlign.Center
                 )
                 
@@ -96,7 +97,7 @@ fun LoginScreen(
                 Text(
                     text = "Inicia sesión para continuar tu aventura",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                    color = PokeFitGray,
                     textAlign = TextAlign.Center
                 )
                 

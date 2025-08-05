@@ -12,6 +12,7 @@ import com.jimmy.valladares.pokefitcompose.presentation.profile.ProfileScreen
 import com.jimmy.valladares.pokefitcompose.presentation.register.RegisterScreen
 import com.jimmy.valladares.pokefitcompose.presentation.stats.StatsScreen
 import com.jimmy.valladares.pokefitcompose.presentation.steps_survey.StepsSurveyScreenRoot
+import com.jimmy.valladares.pokefitcompose.presentation.strength_training.StrengthTrainingScreen
 import com.jimmy.valladares.pokefitcompose.presentation.training.TrainingScreen
 import com.jimmy.valladares.pokefitcompose.presentation.training_survey.TrainingSurveyScreenRoot
 import com.jimmy.valladares.pokefitcompose.presentation.welcome.WelcomeScreenRoot
@@ -173,7 +174,7 @@ fun PokeFitNavigation(
         }
         
         composable<TrainingDestination> {
-            TrainingScreen(
+            StrengthTrainingScreen(
                 onNavigateToTab = { route ->
                     when (route) {
                         "home" -> navController.navigate(HomeDestination)

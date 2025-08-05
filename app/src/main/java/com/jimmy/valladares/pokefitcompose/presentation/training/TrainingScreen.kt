@@ -2,6 +2,7 @@ package com.jimmy.valladares.pokefitcompose.presentation.training
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,7 +16,8 @@ import com.jimmy.valladares.pokefitcompose.presentation.navigation.BottomNavigat
 
 @Composable
 fun TrainingScreen(
-    onNavigateToTab: (String) -> Unit = {}
+    onNavigateToTab: (String) -> Unit = {},
+    onNavigateToStrengthTraining: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -30,17 +32,38 @@ fun TrainingScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "🏋️ Entrenamiento",
+                text = "Entrenamiento",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
             
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Strength Training Button
+            Button(
+                onClick = onNavigateToStrengthTraining,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF8B5CF6)
+                )
+            ) {
+                Text(
+                    text = "Entrenamiento de Fuerza",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Próximamente...",
-                fontSize = 18.sp,
+                text = "Más tipos de entrenamiento próximamente...",
+                fontSize = 14.sp,
                 color = Color(0xFF9CA3AF)
             )
         }

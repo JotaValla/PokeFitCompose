@@ -35,4 +35,7 @@ data object StatsDestination : Destinations
 data object TrainingDestination : Destinations
 
 @Serializable
+data object StrengthTrainingDestination : Destinations
+
+@Serializable
 data object ProfileDestination : Destinations
