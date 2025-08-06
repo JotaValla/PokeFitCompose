@@ -238,13 +238,11 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
         // Guardar inmediatamente el progreso actualizado
         saveCurrentExerciseToHistory()
         
-        // Si se marca una serie como completada, iniciar o reiniciar el temporizador de descanso
+        // Si se marca una serie como completada, siempre reiniciar el temporizador de descanso
         val toggledRow = updatedRows[index]
         if (toggledRow.isCompleted) {
-            // Si no hay temporizador activo o el tiempo ya se acabó, iniciar uno nuevo
-            if (!_state.value.isRestTimerActive || _state.value.restTimeSeconds <= 0) {
-                startRestTimer()
-            }
+            // Siempre reiniciar el temporizador cuando se complete una serie
+            startRestTimer()
         }
     }
     
@@ -293,39 +291,35 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
     private fun startRestTimer() {
         val currentState = _state.value
         
-        // Solo reiniciar si el temporizador no está activo o si ya terminó
-        if (!currentState.isRestTimerActive || currentState.restTimeSeconds <= 0) {
-            _state.value = currentState.copy(
-                isRestTimerActive = true,
-                restTimeSeconds = currentState.defaultRestTime,
-                restTimeValue = formatTime(currentState.defaultRestTime),
-                showRestTimer = true
-            )
-            
-            restTimerJob?.cancel()
-            restTimerJob = viewModelScope.launch {
-                try {
-                    while (_state.value.isRestTimerActive && _state.value.restTimeSeconds > 0) {
-                        delay(1000)
-                        if (_state.value.isRestTimerActive) {
-                            restTimerTick()
-                        }
+        // Siempre reiniciar el temporizador con el tiempo completo
+        _state.value = currentState.copy(
+            isRestTimerActive = true,
+            restTimeSeconds = currentState.defaultRestTime,
+            restTimeValue = formatTime(currentState.defaultRestTime),
+            showRestTimer = true
+        )
+        
+        // Cancelar el job anterior si existe y crear uno nuevo
+        restTimerJob?.cancel()
+        restTimerJob = viewModelScope.launch {
+            try {
+                while (_state.value.isRestTimerActive && _state.value.restTimeSeconds > 0) {
+                    delay(1000)
+                    if (_state.value.isRestTimerActive) {
+                        restTimerTick()
                     }
-                    // Timer completado
-                    if (_state.value.isRestTimerActive && _state.value.restTimeSeconds <= 0) {
-                        _state.value = _state.value.copy(
-                            isRestTimerActive = false,
-                            showRestTimer = false
-                        )
-                        _events.emit(StrengthTrainingEvent.ShowMessage("¡Descanso completado!"))
-                    }
-                } catch (e: Exception) {
-                    _events.emit(StrengthTrainingEvent.ShowMessage("Error en temporizador: ${e.message}"))
                 }
+                // Timer completado
+                if (_state.value.isRestTimerActive && _state.value.restTimeSeconds <= 0) {
+                    _state.value = _state.value.copy(
+                        isRestTimerActive = false,
+                        showRestTimer = false
+                    )
+                    _events.emit(StrengthTrainingEvent.ShowMessage("¡Descanso completado!"))
+                }
+            } catch (e: Exception) {
+                _events.emit(StrengthTrainingEvent.ShowMessage("Error en temporizador: ${e.message}"))
             }
-        } else {
-            // Si el temporizador ya está activo, solo asegurar que se muestre
-            _state.value = currentState.copy(showRestTimer = true)
         }
     }
     
