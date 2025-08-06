@@ -97,6 +97,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     
+    // Gson for JSON serialization
+    implementation(libs.gson)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

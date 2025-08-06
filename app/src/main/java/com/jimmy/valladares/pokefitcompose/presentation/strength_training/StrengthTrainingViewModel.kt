@@ -2,6 +2,7 @@ package com.jimmy.valladares.pokefitcompose.presentation.strength_training
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimmy.valladares.pokefitcompose.data.local.TrainingPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,7 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
+class StrengthTrainingViewModel @Inject constructor(
+    private val trainingPreferences: TrainingPreferences
+) : ViewModel() {
     
     private val _state = MutableStateFlow(StrengthTrainingState())
     val state: StateFlow<StrengthTrainingState> = _state.asStateFlow()
@@ -24,6 +27,11 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
     
     private var timerJob: Job? = null
     private var restTimerJob: Job? = null
+    
+    init {
+        // Intentar restaurar el estado del entrenamiento al inicializar
+        restoreTrainingState()
+    }
     
     fun onAction(action: StrengthTrainingAction) {
         try {
@@ -170,6 +178,9 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
             exerciseHistory = updatedHistory,
             completedExercises = updatedCompletedExercises
         )
+        
+        // Guardar el estado del entrenamiento automáticamente
+        saveTrainingState()
     }
     
     private fun startTraining() {
@@ -190,6 +201,9 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
             currentExerciseIndex = 0
         )
         startTimer()
+        
+        // Guardar el estado del entrenamiento
+        saveTrainingState()
     }
     
     private fun pauseResumeTimer() {
@@ -207,6 +221,9 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
             )
             stopTimer()
         }
+        
+        // Guardar el estado del entrenamiento
+        saveTrainingState()
     }
     
     private fun addSet() {
@@ -279,6 +296,10 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
     private fun finishTraining() {
         stopTimer()
         stopRestTimer()
+        
+        // Limpiar el estado guardado ya que el entrenamiento ha terminado
+        trainingPreferences.clearTrainingState()
+        
         _state.value = StrengthTrainingState() // Reset to initial state
         
         viewModelScope.launch {
@@ -386,6 +407,11 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
             timerSeconds = newSeconds,
             timerValue = newTimeValue
         )
+        
+        // Guardar el estado cada 10 segundos para no sobrecargar
+        if (newSeconds % 10 == 0) {
+            saveTrainingState()
+        }
     }
     
     private fun startTimer() {
@@ -410,8 +436,77 @@ class StrengthTrainingViewModel @Inject constructor() : ViewModel() {
         timerJob = null
     }
     
+    
+    private fun restoreTrainingState() {
+        try {
+            val savedState = trainingPreferences.loadTrainingState()
+            if (savedState != null) {
+                _state.value = savedState
+                
+                // Restaurar timers si estaban activos
+                if (savedState.isTrainingStarted && !savedState.isPaused) {
+                    startTimer()
+                }
+                
+                if (savedState.isRestTimerActive) {
+                    resumeRestTimer()
+                }
+                
+                viewModelScope.launch {
+                    _events.emit(StrengthTrainingEvent.ShowMessage("Entrenamiento restaurado"))
+                }
+            }
+        } catch (e: Exception) {
+            viewModelScope.launch {
+                _events.emit(StrengthTrainingEvent.ShowMessage("Error al restaurar entrenamiento: ${e.message}"))
+            }
+        }
+    }
+    
+    private fun saveTrainingState() {
+        try {
+            val currentState = _state.value
+            if (currentState.isTrainingStarted) {
+                trainingPreferences.saveTrainingState(currentState)
+            }
+        } catch (e: Exception) {
+            viewModelScope.launch {
+                _events.emit(StrengthTrainingEvent.ShowMessage("Error al guardar entrenamiento: ${e.message}"))
+            }
+        }
+    }
+    
+    private fun resumeRestTimer() {
+        val currentState = _state.value
+        if (currentState.isRestTimerActive && currentState.restTimeSeconds > 0) {
+            restTimerJob?.cancel()
+            restTimerJob = viewModelScope.launch {
+                try {
+                    while (_state.value.isRestTimerActive && _state.value.restTimeSeconds > 0) {
+                        delay(1000)
+                        if (_state.value.isRestTimerActive) {
+                            restTimerTick()
+                        }
+                    }
+                    // Timer completado
+                    if (_state.value.isRestTimerActive && _state.value.restTimeSeconds <= 0) {
+                        _state.value = _state.value.copy(
+                            isRestTimerActive = false,
+                            showRestTimer = false
+                        )
+                        _events.emit(StrengthTrainingEvent.ShowMessage("¡Descanso completado!"))
+                    }
+                } catch (e: Exception) {
+                    _events.emit(StrengthTrainingEvent.ShowMessage("Error en temporizador: ${e.message}"))
+                }
+            }
+        }
+    }
+    
     override fun onCleared() {
         super.onCleared()
+        // Guardar el estado antes de limpiar
+        saveTrainingState()
         stopTimer()
         stopRestTimer()
     }
