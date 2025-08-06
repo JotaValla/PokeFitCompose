@@ -93,6 +93,47 @@
     <string name="completed_format">Completados: %1$s</string>
     <string name="reset_symbol">↻</string>
     <string name="plus_symbol">+</string>
+    <string name="start_training_button">Iniciar Entrenamiento</string>
+    <string name="add_exercise">Agregar Ejercicio</string>
+    <string name="selected_exercises">Ejercicios Seleccionados</string>
+    <string name="no_exercises_selected">No hay ejercicios seleccionados</string>
+    <string name="exercise_format">• %1$s</string>
+    <string name="remove">Eliminar</string>
+    <string name="exercises_for_training">Ejercicios para Entrenar</string>
+    <string name="paused">PAUSADO</string>
+    <string name="training_active">ENTRENANDO</string>
+    <string name="rest_timer">Temporizador de Descanso</string>
+    <string name="rest_time_format">Descanso: %1$s</string>
+    <string name="rest_time_remaining">Tiempo de descanso restante</string>
+    <string name="skip_rest">Saltar</string>
+    <string name="add_time">+30s</string>
+    <string name="subtract_time">-30s</string>
+    <string name="rest_complete">¡Descanso completado!</string>
+    <string name="start_rest_timer">Iniciar Descanso</string>
+    <string name="rest_timer_finished">¡Descanso terminado!</string>
+    
+    <!-- Exercise names -->
+    <string name="bench_press">Press de banca</string>
+    <string name="squats">Sentadillas</string>
+    <string name="deadlift">Peso muerto</string>
+    <string name="bicep_curls">Curl de bíceps</string>
+    <string name="military_press">Press militar</string>
+    <string name="barbell_row">Remo con barra</string>
+    <string name="pull_ups">Dominadas</string>
+    <string name="dips">Fondos</string>
+    <string name="lunges">Zancadas</string>
+    <string name="shoulder_press">Press de hombros</string>
+    
+    <!-- Table headers -->
+    <string name="prev_header">Prev</string>
+    <string name="set_header">Serie</string>
+    <string name="kg_header">KG</string>
+    <string name="reps_header">Reps</string>
+    <string name="done_header">Hecho</string>
+    
+    <!-- Status -->
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
     
     <!-- Error Messages -->
     <string name="user_not_authenticated">Usuario no autenticado</string>
