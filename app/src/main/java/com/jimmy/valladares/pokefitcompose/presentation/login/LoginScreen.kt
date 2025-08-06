@@ -39,6 +39,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showMessage by remember { mutableStateOf<String?>(null) }
     
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -46,6 +47,7 @@ fun LoginScreen(
                 is LoginScreenEvent.NavigateToHome -> onNavigateToHome()
                 is LoginScreenEvent.NavigateToRegister -> onNavigateToRegister()
                 is LoginScreenEvent.NavigateToForgotPassword -> onNavigateToForgotPassword()
+                is LoginScreenEvent.ShowMessage -> showMessage = event.message
             }
         }
     }
@@ -247,12 +249,63 @@ fun LoginScreen(
         }
     }
     
+    // Mostrar mensaje de éxito
+    showMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(3000) // Mostrar por 3 segundos
+            showMessage = null
+        }
+        
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            ) {
+                Text(
+                    text = message,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+    
     // Mostrar errores generales si existen
     state.generalError?.let { error ->
         LaunchedEffect(error) {
-            // Aquí podrías mostrar un Snackbar o AlertDialog
-            // Por ahora solo dismissamos el error
+            kotlinx.coroutines.delay(5000) // Mostrar por 5 segundos
             viewModel.onAction(LoginScreenAction.OnDismissError)
+        }
+        
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            ) {
+                Text(
+                    text = error,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "284357548625",
+    "project_id": "pokefit-5cf15",
+    "storage_bucket": "pokefit-5cf15.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:284357548625:android:a708cfc54553d6d5fe3670",
+        "android_client_info": {
+          "package_name": "com.jimmy.valladares.pokefit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrE1GxA1pT0PGqNRBVkQsJunZExmBgkGE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:284357548625:android:b72a50d0ece41064fe3670",
+        "android_client_info": {
+          "package_name": "com.jimmy.valladares.pokefitcompose"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrE1GxA1pT0PGqNRBVkQsJunZExmBgkGE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

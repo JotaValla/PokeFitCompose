@@ -1,7 +1,10 @@
 package com.jimmy.valladares.pokefitcompose.presentation.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimmy.valladares.pokefitcompose.data.auth.AuthResult
+import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,13 +15,29 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val authService: FirebaseAuthService
+) : ViewModel() {
     
     private val _state = MutableStateFlow(LoginScreenState())
     val state: StateFlow<LoginScreenState> = _state.asStateFlow()
     
     private val _events = Channel<LoginScreenEvent>()
     val events = _events.receiveAsFlow()
+    
+    companion object {
+        private const val TAG = "LoginViewModel"
+    }
+    
+    init {
+        // Verificar si el usuario ya está logueado
+        if (authService.isUserLoggedIn) {
+            Log.d(TAG, "User already logged in: ${authService.currentUser?.email}")
+            viewModelScope.launch {
+                _events.send(LoginScreenEvent.NavigateToHome)
+            }
+        }
+    }
     
     fun onAction(action: LoginScreenAction) {
         when (action) {
@@ -62,18 +81,92 @@ class LoginViewModel @Inject constructor() : ViewModel() {
         if (validateInputs()) {
             _state.value = _state.value.copy(isLoading = true)
             
-            // Simulate login process
             viewModelScope.launch {
-                kotlinx.coroutines.delay(2000) // Simular llamada a API
-                _state.value = _state.value.copy(isLoading = false)
-                _events.send(LoginScreenEvent.NavigateToHome)
+                try {
+                    val email = _state.value.email.trim()
+                    val password = _state.value.password
+                    
+                    Log.d(TAG, "Attempting to sign in with Firebase for email: $email")
+                    
+                    when (val result = authService.signInWithEmailAndPassword(email, password)) {
+                        is AuthResult.Success -> {
+                            Log.d(TAG, "Firebase sign in successful")
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                generalError = null
+                            )
+                            _events.send(LoginScreenEvent.NavigateToHome)
+                        }
+                        is AuthResult.Error -> {
+                            Log.w(TAG, "Firebase sign in failed: ${result.message}")
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                generalError = getFirebaseErrorMessage(result.message)
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Unexpected error during sign in", e)
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        generalError = "Error inesperado. Por favor intenta de nuevo."
+                    )
+                }
             }
         }
     }
     
     private fun handleForgotPassword() {
+        if (_state.value.email.trim().isEmpty()) {
+            _state.value = _state.value.copy(
+                emailError = "Ingresa tu email para recuperar la contraseña"
+            )
+            return
+        }
+        
+        if (!isValidEmail(_state.value.email.trim())) {
+            _state.value = _state.value.copy(
+                emailError = "Formato de email inválido"
+            )
+            return
+        }
+        
         viewModelScope.launch {
-            _events.send(LoginScreenEvent.NavigateToForgotPassword)
+            try {
+                val email = _state.value.email.trim()
+                Log.d(TAG, "Sending password reset email to: $email")
+                
+                when (val result = authService.sendPasswordResetEmail(email)) {
+                    is AuthResult.Success -> {
+                        Log.d(TAG, "Password reset email sent successfully")
+                        _events.send(LoginScreenEvent.ShowMessage("Email de recuperación enviado a $email"))
+                    }
+                    is AuthResult.Error -> {
+                        Log.w(TAG, "Failed to send password reset email: ${result.message}")
+                        _state.value = _state.value.copy(
+                            generalError = getFirebaseErrorMessage(result.message)
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Unexpected error sending password reset email", e)
+                _state.value = _state.value.copy(
+                    generalError = "Error al enviar email de recuperación"
+                )
+            }
+        }
+    }
+    
+    private fun getFirebaseErrorMessage(error: String): String {
+        return when {
+            error.contains("invalid-email") -> "El formato del email es inválido"
+            error.contains("user-disabled") -> "Esta cuenta ha sido deshabilitada"
+            error.contains("user-not-found") -> "No existe una cuenta con este email"
+            error.contains("wrong-password") -> "La contraseña es incorrecta"
+            error.contains("too-many-requests") -> "Demasiados intentos fallidos. Intenta más tarde"
+            error.contains("network-request-failed") -> "Error de conexión. Verifica tu internet"
+            error.contains("invalid-credential") -> "Credenciales inválidas. Verifica tu email y contraseña"
+            else -> error
         }
     }
     

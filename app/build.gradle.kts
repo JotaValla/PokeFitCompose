@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -67,9 +68,16 @@ dependencies {
     
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.google.firebase.bom)
+    implementation(libs.firebase.firestore.ktx)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
     
+    // Firebase
+
+
+
     // Navigation
     implementation(libs.navigation.compose)
     

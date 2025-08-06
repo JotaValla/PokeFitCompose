@@ -1,12 +1,22 @@
 package com.jimmy.valladares.pokefitcompose.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.jimmy.valladares.pokefitcompose.presentation.home.HomeScreen
 import com.jimmy.valladares.pokefitcompose.presentation.initial_survey.InitialSurveyScreenRoot
 import com.jimmy.valladares.pokefitcompose.presentation.login.LoginScreen
+import com.jimmy.valladares.pokefitcompose.presentation.main.MainViewModel
 import com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection.PokemonSelectionScreenRoot
 import com.jimmy.valladares.pokefitcompose.presentation.profile.ProfileScreen
 import com.jimmy.valladares.pokefitcompose.presentation.register.RegisterScreen
@@ -19,11 +29,46 @@ import com.jimmy.valladares.pokefitcompose.presentation.welcome.WelcomeScreenRoo
 
 @Composable
 fun PokeFitNavigation(
-    navController: NavHostController
+    navController: NavHostController,
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
+    val mainState by mainViewModel.state.collectAsState()
+    
+    // Mostrar pantalla de carga mientras se verifica la autenticación
+    if (mainState.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+    
+    // Determinar el destino inicial basado en el estado de autenticación
+    val startDestination = if (mainState.isAuthenticated) {
+        HomeDestination
+    } else {
+        WelcomeDestination
+    }
+    
+    LaunchedEffect(mainState.isAuthenticated) {
+        if (mainState.isAuthenticated) {
+            // Si el usuario está autenticado, navegar a Home
+            navController.navigate(HomeDestination) {
+                popUpTo(0) { inclusive = true }
+            }
+        } else {
+            // Si no está autenticado, navegar a Welcome
+            navController.navigate(WelcomeDestination) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+    
     NavHost(
         navController = navController,
-        startDestination = WelcomeDestination
+        startDestination = startDestination
     ) {
         composable<WelcomeDestination> {
             WelcomeScreenRoot(
@@ -198,6 +243,11 @@ fun PokeFitNavigation(
                         "profile" -> {
                             // Ya estamos en profile, no hacer nada
                         }
+                    }
+                },
+                onNavigateToWelcome = {
+                    navController.navigate(WelcomeDestination) {
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

@@ -1,7 +1,10 @@
 package com.jimmy.valladares.pokefitcompose.presentation.register
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimmy.valladares.pokefitcompose.data.auth.AuthResult
+import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,13 +15,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor() : ViewModel() {
+class RegisterViewModel @Inject constructor(
+    private val authService: FirebaseAuthService
+) : ViewModel() {
     
     private val _state = MutableStateFlow(RegisterScreenState())
     val state: StateFlow<RegisterScreenState> = _state.asStateFlow()
     
     private val _events = Channel<RegisterScreenEvent>()
     val events = _events.receiveAsFlow()
+    
+    companion object {
+        private const val TAG = "RegisterViewModel"
+    }
     
     fun onAction(action: RegisterScreenAction) {
         when (action) {
@@ -83,12 +92,66 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
         if (validateInputs()) {
             _state.value = _state.value.copy(isLoading = true)
             
-            // Simulate registration process
             viewModelScope.launch {
-                kotlinx.coroutines.delay(2000) // Simular llamada a API
-                _state.value = _state.value.copy(isLoading = false)
-                _events.send(RegisterScreenEvent.NavigateToHome)
+                try {
+                    val email = _state.value.email.trim()
+                    val password = _state.value.password
+                    val fullName = _state.value.fullName.trim()
+                    
+                    Log.d(TAG, "Attempting to create account with Firebase for email: $email")
+                    
+                    when (val result = authService.createUserWithEmailAndPassword(email, password)) {
+                        is AuthResult.Success -> {
+                            Log.d(TAG, "Firebase account creation successful")
+                            
+                            // Actualizar el perfil con el nombre completo
+                            val updateResult = authService.updateProfile(displayName = fullName)
+                            when (updateResult) {
+                                is AuthResult.Success -> {
+                                    Log.d(TAG, "Profile update successful")
+                                }
+                                is AuthResult.Error -> {
+                                    Log.w(TAG, "Profile update failed: ${updateResult.message}")
+                                    // No es crítico, continuar con el flujo
+                                }
+                            }
+                            
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                generalError = null
+                            )
+                            _events.send(RegisterScreenEvent.NavigateToHome)
+                        }
+                        is AuthResult.Error -> {
+                            Log.w(TAG, "Firebase account creation failed: ${result.message}")
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                generalError = getFirebaseErrorMessage(result.message)
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Unexpected error during account creation", e)
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        generalError = "Error inesperado. Por favor intenta de nuevo."
+                    )
+                }
             }
+        }
+    }
+    
+    private fun getFirebaseErrorMessage(error: String): String {
+        return when {
+            error.contains("invalid-email") -> "El formato del email es inválido"
+            error.contains("email-already-in-use") -> "Ya existe una cuenta con este email"
+            error.contains("weak-password") -> "La contraseña es muy débil. Debe tener al menos 6 caracteres"
+            error.contains("network-request-failed") -> "Error de conexión. Verifica tu internet"
+            error.contains("too-many-requests") -> "Demasiados intentos. Intenta más tarde"
+            error.contains("invalid-credential") -> "Credenciales inválidas. Verifica tu email y contraseña"
+            error.contains("user-disabled") -> "Esta cuenta ha sido deshabilitada"
+            error.contains("operation-not-allowed") -> "Operación no permitida. Contacta al soporte"
+            else -> "Error de autenticación: $error"
         }
     }
     
