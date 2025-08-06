@@ -14,6 +14,9 @@ data object LoginDestination : Destinations
 data object RegisterDestination : Destinations
 
 @Serializable
+data object UserInfoDestination : Destinations
+
+@Serializable
 data object InitialSurveyDestination : Destinations
 
 @Serializable

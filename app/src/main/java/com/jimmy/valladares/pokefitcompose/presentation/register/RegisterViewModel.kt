@@ -120,7 +120,7 @@ class RegisterViewModel @Inject constructor(
                                 isLoading = false,
                                 generalError = null
                             )
-                            _events.send(RegisterScreenEvent.NavigateToHome)
+                            _events.send(RegisterScreenEvent.NavigateToUserInfo)
                         }
                         is AuthResult.Error -> {
                             Log.w(TAG, "Firebase account creation failed: ${result.message}")

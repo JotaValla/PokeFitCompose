@@ -1,7 +1,7 @@
 package com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection
 
 sealed interface PokemonSelectionAction {
-    data class SelectPokemon(val pokemon: Pokemon) : PokemonSelectionAction
+    data class SelectPokemon(val pokemon: String) : PokemonSelectionAction
     data object ConfirmSelection : PokemonSelectionAction
     data object ProceedToHome : PokemonSelectionAction
     data object Back : PokemonSelectionAction

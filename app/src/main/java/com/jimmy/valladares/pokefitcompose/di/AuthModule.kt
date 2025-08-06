@@ -1,6 +1,7 @@
 package com.jimmy.valladares.pokefitcompose.di
 
 import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
+import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,5 +16,11 @@ object AuthModule {
     @Singleton
     fun provideFirebaseAuthService(): FirebaseAuthService {
         return FirebaseAuthService()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideFirestoreService(): FirestoreService {
+        return FirestoreService()
     }
 }

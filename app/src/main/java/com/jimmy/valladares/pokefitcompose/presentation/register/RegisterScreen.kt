@@ -30,11 +30,12 @@ import com.jimmy.valladares.pokefitcompose.R
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientEnd
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientStart
 import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitComposeTheme
+import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitGray
 
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
-    onNavigateToHome: () -> Unit,
+    onNavigateToUserInfo: () -> Unit,
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -42,7 +43,11 @@ fun RegisterScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is RegisterScreenEvent.NavigateToHome -> onNavigateToHome()
+                is RegisterScreenEvent.NavigateToUserInfo -> onNavigateToUserInfo()
+                is RegisterScreenEvent.NavigateToHome -> {
+                    // Legacy support - redirect to user info
+                    onNavigateToUserInfo()
+                }
                 is RegisterScreenEvent.NavigateToLogin -> onNavigateToLogin()
             }
         }
@@ -86,7 +91,7 @@ fun RegisterScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp
                     ),
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = PokeFitGray,
                     textAlign = TextAlign.Center
                 )
                 
@@ -95,7 +100,7 @@ fun RegisterScreen(
                 Text(
                     text = "Crea tu cuenta y comienza tu aventura",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                    color = PokeFitGray.copy(alpha = 0.8f),
                     textAlign = TextAlign.Center
                 )
                 

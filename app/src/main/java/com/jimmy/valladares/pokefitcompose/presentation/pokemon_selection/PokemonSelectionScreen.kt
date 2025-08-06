@@ -30,14 +30,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.jimmy.valladares.pokefitcompose.R
-import com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection.providers.PokemonSelectionPreviewProvider
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientEnd
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientStart
 import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitComposeTheme
@@ -184,28 +182,28 @@ private fun PokemonSelectionContent(
                     
                     // Opciones de Pokémon
                     PokemonOption(
-                        pokemon = Pokemon.TOTODILE,
-                        isSelected = state.selectedPokemon == Pokemon.TOTODILE,
+                        pokemon = Pokemon.TORCHIC,
+                        isSelected = state.selectedPokemon == Pokemon.TORCHIC.key,
                         isEnabled = !state.isLoading,
-                        onClick = { onAction(PokemonSelectionAction.SelectPokemon(Pokemon.TOTODILE)) }
+                        onClick = { onAction(PokemonSelectionAction.SelectPokemon(Pokemon.TORCHIC.key)) }
                     )
                     
                     Spacer(modifier = Modifier.height(32.dp))
                     
                     PokemonOption(
-                        pokemon = Pokemon.EEVEE,
-                        isSelected = state.selectedPokemon == Pokemon.EEVEE,
+                        pokemon = Pokemon.MACHOP,
+                        isSelected = state.selectedPokemon == Pokemon.MACHOP.key,
                         isEnabled = !state.isLoading,
-                        onClick = { onAction(PokemonSelectionAction.SelectPokemon(Pokemon.EEVEE)) }
+                        onClick = { onAction(PokemonSelectionAction.SelectPokemon(Pokemon.MACHOP.key)) }
                     )
                     
                     Spacer(modifier = Modifier.height(32.dp))
                     
                     PokemonOption(
-                        pokemon = Pokemon.PIPLUP,
-                        isSelected = state.selectedPokemon == Pokemon.PIPLUP,
+                        pokemon = Pokemon.GIBLE,
+                        isSelected = state.selectedPokemon == Pokemon.GIBLE.key,
                         isEnabled = !state.isLoading,
-                        onClick = { onAction(PokemonSelectionAction.SelectPokemon(Pokemon.PIPLUP)) }
+                        onClick = { onAction(PokemonSelectionAction.SelectPokemon(Pokemon.GIBLE.key)) }
                     )
                     
                     Spacer(modifier = Modifier.height(48.dp))
@@ -223,7 +221,7 @@ private fun PokemonSelectionContent(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "¡Has elegido a ${state.selectedPokemon?.displayName ?: ""}!",
+                                text = "¡Has elegido a ${getPokemonDisplayName(state.selectedPokemon)}!",
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold,
@@ -406,13 +404,24 @@ private fun AnimatedGifImage(
 
 @Preview(showBackground = true)
 @Composable
-fun PokemonSelectionScreenPreview(
-    @PreviewParameter(PokemonSelectionPreviewProvider::class) state: PokemonSelectionState
-) {
+fun PokemonSelectionScreenPreview() {
     PokeFitComposeTheme {
         PokemonSelectionContent(
-            state = state,
+            state = PokemonSelectionState(
+                selectedPokemon = "torchic",
+                canProceed = true
+            ),
             onAction = {}
         )
+    }
+}
+
+// Helper function to get display name from pokemon key
+private fun getPokemonDisplayName(pokemonKey: String?): String {
+    return when (pokemonKey) {
+        Pokemon.TORCHIC.key -> Pokemon.TORCHIC.displayName
+        Pokemon.MACHOP.key -> Pokemon.MACHOP.displayName
+        Pokemon.GIBLE.key -> Pokemon.GIBLE.displayName
+        else -> ""
     }
 }

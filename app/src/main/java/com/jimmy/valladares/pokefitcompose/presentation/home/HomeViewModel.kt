@@ -2,7 +2,8 @@ package com.jimmy.valladares.pokefitcompose.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimmy.valladares.pokefitcompose.data.repository.UserRepository
+import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
+import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -13,7 +14,8 @@ import kotlin.random.Random
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val authService: FirebaseAuthService,
+    private val firestoreService: FirestoreService
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -43,40 +45,50 @@ class HomeViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
             
             try {
-                val userProfile = userRepository.getCurrentUser()
-                
-                // Simular datos de progreso semanal
-                val mockWeeklyProgress = listOf(
-                    DayProgress("Lun", true, 10),
-                    DayProgress("Mar", true, 12),
-                    DayProgress("Mie", false, 0),
-                    DayProgress("Jue", false, 0),
-                    DayProgress("Vie", false, 0),
-                    DayProgress("Sab", false, 0),
-                    DayProgress("Dom", false, 0)
-                )
-
-                // Obtener Pokemon seleccionado del perfil del usuario
-                val selectedPokemon = userProfile?.selectedPokemon ?: "eevee"
-                val pokemonName = getPokemonName(selectedPokemon)
-                val currentLevel = userProfile?.currentLevel ?: 1
-                val currentExp = userProfile?.currentExp ?: 0
-                val maxExp = calculateMaxExp(currentLevel)
-
-                _state.update {
-                    it.copy(
-                        userProfile = userProfile,
-                        selectedPokemon = selectedPokemon,
-                        pokemonName = pokemonName,
-                        currentLevel = currentLevel,
-                        currentExp = currentExp,
-                        maxExp = maxExp,
-                        streakDays = userProfile?.streakDays ?: 0,
-                        weeklyProgress = mockWeeklyProgress,
-                        todayTrainings = 0,
-                        expToNextLevel = maxExp - currentExp,
-                        isLoading = false
+                val currentUser = authService.currentUser
+                if (currentUser != null) {
+                    val userProfile = firestoreService.getUserProfile(currentUser.uid)
+                    
+                    // Simular datos de progreso semanal
+                    val mockWeeklyProgress = listOf(
+                        DayProgress("Lun", true, 10),
+                        DayProgress("Mar", true, 12),
+                        DayProgress("Mie", false, 0),
+                        DayProgress("Jue", false, 0),
+                        DayProgress("Vie", false, 0),
+                        DayProgress("Sab", false, 0),
+                        DayProgress("Dom", false, 0)
                     )
+
+                    // Obtener Pokemon seleccionado del perfil del usuario
+                    val selectedPokemon = userProfile?.selectedPokemon ?: "eevee"
+                    val pokemonName = getPokemonName(selectedPokemon)
+                    val currentLevel = userProfile?.currentLevel ?: 1
+                    val currentExp = userProfile?.currentExp ?: 0
+                    val maxExp = calculateMaxExp(currentLevel)
+
+                    _state.update {
+                        it.copy(
+                            userProfile = userProfile,
+                            selectedPokemon = selectedPokemon,
+                            pokemonName = pokemonName,
+                            currentLevel = currentLevel,
+                            currentExp = currentExp,
+                            maxExp = maxExp,
+                            streakDays = userProfile?.streakDays ?: 0,
+                            weeklyProgress = mockWeeklyProgress,
+                            todayTrainings = 0,
+                            expToNextLevel = maxExp - currentExp,
+                            isLoading = false
+                        )
+                    }
+                } else {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Usuario no autenticado"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _state.update {
@@ -157,6 +169,9 @@ class HomeViewModel @Inject constructor(
 
     private fun getPokemonName(pokemonKey: String): String {
         return when (pokemonKey) {
+            "torchic" -> "Torchic"
+            "machop" -> "Machop"
+            "gible" -> "Gible"
             "charmander" -> "Charmander"
             "eevee" -> "Eevee"
             "gabite" -> "Gabite"

@@ -2,7 +2,10 @@ package com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimmy.valladares.pokefitcompose.data.local.UserPreferences
+import com.jimmy.valladares.pokefitcompose.data.auth.AuthResult
+import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
+import com.jimmy.valladares.pokefitcompose.data.model.PokemonData
+import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -15,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PokemonSelectionViewModel @Inject constructor(
-    private val userPreferences: UserPreferences
+    private val authService: FirebaseAuthService,
+    private val firestoreService: FirestoreService
 ) : ViewModel() {
     
     private val _state = MutableStateFlow(PokemonSelectionState())
@@ -44,43 +48,58 @@ class PokemonSelectionViewModel @Inject constructor(
         }
     }
     
-    // Función para inicializar el perfil del usuario desde la navegación
-    fun initializeUserProfile(profile: CompleteUserProfile) {
-        _state.update { currentState ->
-            currentState.copy(userProfile = profile)
-        }
-    }
-    
-    private fun selectPokemon(pokemon: Pokemon) {
+    private fun selectPokemon(pokemonKey: String) {
+        val pokemon = PokemonData.availablePokemons.find { it.key == pokemonKey }
         _state.update { currentState ->
             currentState.copy(
-                selectedPokemon = pokemon,
-                canProceed = true,
+                selectedPokemon = pokemonKey,
+                canProceed = pokemon != null,
                 error = null
             )
         }
         
-        // Guardar la selección en UserPreferences
-        val pokemonKey = when (pokemon) {
-            Pokemon.TOTODILE -> "totodile"
-            Pokemon.EEVEE -> "eevee"
-            Pokemon.PIPLUP -> "piplup"
-        }
-        userPreferences.setSelectedPokemon(pokemonKey)
-        
         // Auto-navegación después de seleccionar Pokémon con feedback visual
-        viewModelScope.launch {
-            delay(1500) // Pausa para mostrar el mensaje de confirmación
-            
-            // Mostrar loading mientras se procesa
-            _state.update { currentState ->
-                currentState.copy(isLoading = true)
+        if (pokemon != null) {
+            viewModelScope.launch {
+                delay(1500) // Pausa para mostrar el mensaje de confirmación
+                
+                // Mostrar loading mientras se procesa
+                _state.update { currentState ->
+                    currentState.copy(isLoading = true)
+                }
+                
+                // Guardar en Firebase
+                val currentUser = authService.currentUser
+                if (currentUser != null) {
+                    val updates = mapOf(
+                        "selectedPokemon" to pokemonKey
+                    )
+                    
+                    when (val result = firestoreService.updateUserProfile(currentUser.uid, updates)) {
+                        is AuthResult.Success -> {
+                            _state.update { currentState ->
+                                currentState.copy(isLoading = false)
+                            }
+                            _events.send(PokemonSelectionEvent.NavigateToHome)
+                        }
+                        is AuthResult.Error -> {
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    isLoading = false,
+                                    error = result.message
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    _state.update { currentState ->
+                        currentState.copy(
+                            isLoading = false,
+                            error = "Error: Usuario no autenticado"
+                        )
+                    }
+                }
             }
-            
-            delay(1000) // Simular procesamiento para que se vea el loading
-            
-            // Navegar directamente a Home
-            _events.send(PokemonSelectionEvent.NavigateToHome)
         }
     }
     

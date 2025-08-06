@@ -17,7 +17,7 @@ import com.jimmy.valladares.pokefitcompose.presentation.home.HomeScreen
 import com.jimmy.valladares.pokefitcompose.presentation.initial_survey.InitialSurveyScreenRoot
 import com.jimmy.valladares.pokefitcompose.presentation.login.LoginScreen
 import com.jimmy.valladares.pokefitcompose.presentation.main.MainViewModel
-import com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection.PokemonSelectionScreenRoot
+import com.jimmy.valladares.pokefitcompose.presentation.pokemon_selection.NewPokemonSelectionScreen
 import com.jimmy.valladares.pokefitcompose.presentation.profile.ProfileScreen
 import com.jimmy.valladares.pokefitcompose.presentation.register.RegisterScreen
 import com.jimmy.valladares.pokefitcompose.presentation.stats.StatsScreen
@@ -25,6 +25,7 @@ import com.jimmy.valladares.pokefitcompose.presentation.steps_survey.StepsSurvey
 import com.jimmy.valladares.pokefitcompose.presentation.strength_training.StrengthTrainingScreen
 import com.jimmy.valladares.pokefitcompose.presentation.training.TrainingScreen
 import com.jimmy.valladares.pokefitcompose.presentation.training_survey.TrainingSurveyScreenRoot
+import com.jimmy.valladares.pokefitcompose.presentation.user_info.UserInfoScreen
 import com.jimmy.valladares.pokefitcompose.presentation.welcome.WelcomeScreenRoot
 
 @Composable
@@ -102,8 +103,8 @@ fun PokeFitNavigation(
         
         composable<RegisterDestination> {
             RegisterScreen(
-                onNavigateToHome = {
-                    navController.navigate(InitialSurveyDestination) {
+                onNavigateToUserInfo = {
+                    navController.navigate(UserInfoDestination) {
                         popUpTo(RegisterDestination) {
                             inclusive = true
                         }
@@ -111,6 +112,18 @@ fun PokeFitNavigation(
                 },
                 onNavigateToLogin = {
                     navController.popBackStack()
+                }
+            )
+        }
+        
+        composable<UserInfoDestination> {
+            UserInfoScreen(
+                onNavigateToPokemonSelection = {
+                    navController.navigate(PokemonSelectionDestination) {
+                        popUpTo(UserInfoDestination) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
@@ -170,16 +183,13 @@ fun PokeFitNavigation(
         }
         
         composable<PokemonSelectionDestination> {
-            PokemonSelectionScreenRoot(
+            NewPokemonSelectionScreen(
                 onNavigateToHome = {
                     navController.navigate(HomeDestination) {
                         popUpTo(PokemonSelectionDestination) {
                             inclusive = true
                         }
                     }
-                },
-                onNavigateBack = {
-                    navController.popBackStack()
                 }
             )
         }

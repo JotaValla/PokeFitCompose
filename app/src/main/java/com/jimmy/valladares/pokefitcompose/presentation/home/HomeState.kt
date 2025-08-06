@@ -1,6 +1,6 @@
 package com.jimmy.valladares.pokefitcompose.presentation.home
 
-import com.jimmy.valladares.pokefitcompose.domain.model.UserProfile
+import com.jimmy.valladares.pokefitcompose.data.model.UserProfile
 
 data class HomeState(
     val userProfile: UserProfile? = null,
