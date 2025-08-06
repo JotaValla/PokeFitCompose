@@ -18,7 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jimmy.valladares.pokefitcompose.R
 import com.jimmy.valladares.pokefitcompose.presentation.home.BottomNavItem
 import com.jimmy.valladares.pokefitcompose.presentation.navigation.BottomNavigationBar
 
@@ -51,7 +53,7 @@ fun ProfileScreen(
         ) {
             // Header
             Text(
-                text = "👤 Perfil",
+                text = stringResource(R.string.profile_title),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -76,7 +78,7 @@ fun ProfileScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Usuario",
+                        contentDescription = stringResource(R.string.user_description),
                         tint = Color(0xFF60A5FA),
                         modifier = Modifier.size(64.dp)
                     )
@@ -129,12 +131,12 @@ fun ProfileScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
-                            contentDescription = "Cerrar sesión",
+                            contentDescription = stringResource(R.string.sign_out),
                             tint = Color.White
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Cerrar Sesión",
+                            text = stringResource(R.string.sign_out),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White

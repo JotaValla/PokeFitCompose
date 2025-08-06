@@ -1,3 +1,112 @@
 <resources>
     <string name="app_name">PokeFitCompose</string>
+    
+    <!-- General -->
+    <string name="pokefit">PokeFit</string>
+    <string name="pokefit_full">PokéFit</string>
+    <string name="continue_button">Continuar</string>
+    <string name="days">días</string>
+    <string name="level_format">Nivel %1$d</string>
+    <string name="exp_format">%1$d / %2$d</string>
+    <string name="exp">EXP</string>
+    <string name="today">hoy</string>
+    
+    <!-- Home Screen -->
+    <string name="notifications">Notificaciones</string>
+    <string name="settings">Configuración</string>
+    <string name="training_streak">Racha de Entrenamientos</string>
+    <string name="maintain_daily_consistency">Mantén tu consistencia diaria</string>
+    <string name="today_stats">Estadísticas de hoy</string>
+    <string name="start_training">Iniciar Entrenamiento</string>
+    <string name="trainings">Entrenamientos</string>
+    <string name="current_streak">Racha actual</string>
+    <string name="next_level_in">Próximo nivel en</string>
+    
+    <!-- Days of the week (abbreviated) -->
+    <string name="monday_short">Lun</string>
+    <string name="tuesday_short">Mar</string>
+    <string name="wednesday_short">Mie</string>
+    <string name="thursday_short">Jue</string>
+    <string name="friday_short">Vie</string>
+    <string name="saturday_short">Sab</string>
+    <string name="sunday_short">Dom</string>
+    
+    <!-- Pokemon Names -->
+    <string name="eevee">Eevee</string>
+    <string name="torchic">Torchic</string>
+    <string name="machop">Machop</string>
+    <string name="gible">Gible</string>
+    <string name="charmander">Charmander</string>
+    <string name="gabite">Gabite</string>
+    <string name="totodile">Totodile</string>
+    <string name="piplup">Piplup</string>
+    
+    <!-- Pokemon Descriptions -->
+    <string name="torchic_description">Pokémon de tipo Fuego. Energético y determinado, perfecto para comenzar aventuras fitness.</string>
+    <string name="machop_description">Pokémon de tipo Lucha. Fuerte y resistente, ideal para entrenamientos intensos.</string>
+    <string name="gible_description">Pokémon de tipo Dragón/Tierra. Feroz y ambicioso, excelente para alcanzar metas.</string>
+    
+    <!-- Motivational Messages -->
+    <string name="motivational_excellent">¡Increíble! Casi completas la semana 💪</string>
+    <string name="motivational_good">¡Excelente progreso! Sigue así 🚀</string>
+    <string name="motivational_start">¡Buen comienzo! Mantén el ritmo ⚡</string>
+    <string name="motivational_begin">¡Es hora de empezar tu racha! 🔥</string>
+    
+    <!-- Pokemon Selection Screen -->
+    <string name="we_are_pokefit">Somos PokeFit</string>
+    <string name="choose_pokemon">Elige tu Pokémon</string>
+    <string name="pokemon_selected_format">¡Has elegido a %1$s!</string>
+    <string name="preparing_adventure">Preparando tu aventura fitness...</string>
+    <string name="saving_selection">Guardando tu selección...</string>
+    <string name="pokemon_warning">Recuerda que una vez elegido tu pokémon no podrás cambiarlo.</string>
+    <string name="back_content_description">Regresar a encuesta anterior</string>
+    <string name="back">Regresar</string>
+    <string name="pokefit_logo_description">Logo de PokeFit</string>
+    
+    <!-- Welcome Screen -->
+    <string name="welcome_message">¿Listo para ponerte en forma mientras entrenas como un verdadero Maestro Pokémon?</string>
+    
+    <!-- User Info Screen -->
+    <string name="welcome_to_pokefit">¡Bienvenido a PokéFit!</string>
+    <string name="tell_us_about_you">Cuéntanos un poco sobre ti</string>
+    <string name="nick_label">Nick</string>
+    <string name="name_placeholder">Ej: Juan Pérez</string>
+    <string name="age_label">Edad</string>
+    <string name="age_placeholder">Ej: 25</string>
+    <string name="weight_label">Peso (kg)</string>
+    <string name="weight_placeholder">Ej: 70.5</string>
+    
+    <!-- Training Survey Screen -->
+    <string name="what_is_your_goal">¿Cuál es tu objetivo?</string>
+    
+    <!-- Training Screen -->
+    <string name="training">Entrenamiento</string>
+    <string name="strength_training">Entrenamiento de Fuerza</string>
+    <string name="more_training_soon">Más tipos de entrenamiento próximamente...</string>
+    
+    <!-- Strength Training Screen -->
+    <string name="completed_exercises">Ejercicios Completados</string>
+    <string name="exercise_series_format">• %1$s (%2$d series completadas)</string>
+    <string name="finish_training">Finalizar Entrenamiento</string>
+    <string name="what_to_train">¿Qué deseas entrenar ahora?</string>
+    <string name="current_exercise">Ejercicio Actual:</string>
+    <string name="completed_format">Completados: %1$s</string>
+    <string name="reset_symbol">↻</string>
+    <string name="plus_symbol">+</string>
+    
+    <!-- Error Messages -->
+    <string name="user_not_authenticated">Usuario no autenticado</string>
+    <string name="error_loading_data">Error al cargar los datos: %1$s</string>
+    <string name="select_pokemon_error">Por favor selecciona un Pokémon antes de continuar</string>
+    <string name="error_user_not_auth">Error: Usuario no autenticado</string>
+    
+    <!-- Stats Screen -->
+    <string name="stats_title">📊 Estadísticas</string>
+    <string name="coming_soon">Próximamente...</string>
+    
+    <!-- Profile Screen -->
+    <string name="profile_title">👤 Perfil</string>
+    <string name="user_description">Usuario</string>
+    <string name="sign_out">Cerrar Sesión</string>
+
 </resources>

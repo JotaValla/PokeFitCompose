@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.jimmy.valladares.pokefitcompose.R
 import com.jimmy.valladares.pokefitcompose.presentation.home.BottomNavItem
 import com.jimmy.valladares.pokefitcompose.presentation.navigation.BottomNavigationBar
 
@@ -32,7 +34,7 @@ fun TrainingScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Entrenamiento",
+                text = stringResource(R.string.training),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -52,7 +54,7 @@ fun TrainingScreen(
                 )
             ) {
                 Text(
-                    text = "Entrenamiento de Fuerza",
+                    text = stringResource(R.string.strength_training),
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
@@ -62,7 +64,7 @@ fun TrainingScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Más tipos de entrenamiento próximamente...",
+                text = stringResource(R.string.more_training_soon),
                 fontSize = 14.sp,
                 color = Color(0xFF9CA3AF)
             )

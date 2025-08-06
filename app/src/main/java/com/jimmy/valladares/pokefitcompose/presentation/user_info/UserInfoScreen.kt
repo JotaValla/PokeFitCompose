@@ -16,7 +16,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jimmy.valladares.pokefitcompose.R
 
 @Composable
 fun UserInfoScreen(
@@ -59,7 +61,7 @@ fun UserInfoScreen(
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = "Cuéntanos un poco sobre ti",
+                text = stringResource(R.string.tell_us_about_you),
                 fontSize = 16.sp,
                 color = Color(0xFF9CA3AF),
                 textAlign = TextAlign.Center
@@ -82,7 +84,7 @@ fun UserInfoScreen(
                 ) {
                     // Campo Nick
                     Text(
-                        text = "Nick",
+                        text = stringResource(R.string.nick_label),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
@@ -125,7 +127,7 @@ fun UserInfoScreen(
                     
                     // Campo Edad
                     Text(
-                        text = "Edad",
+                        text = stringResource(R.string.age_label),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
@@ -244,7 +246,7 @@ fun UserInfoScreen(
                     )
                 } else {
                     Text(
-                        text = "Continuar",
+                        text = stringResource(R.string.continue_button),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White

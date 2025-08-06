@@ -31,11 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.jimmy.valladares.pokefitcompose.R
 import com.jimmy.valladares.pokefitcompose.presentation.navigation.BottomNavigationBar
 import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitComposeTheme
+import com.jimmy.valladares.pokefitcompose.ui.theme.StreakColor
 
 @Composable
 fun HomeScreen(
@@ -154,7 +156,7 @@ private fun PokeFitTopBar() {
     TopAppBar(
         title = {
             Text(
-                text = "PokeFit",
+                text = stringResource(R.string.pokefit),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -164,14 +166,14 @@ private fun PokeFitTopBar() {
             IconButton(onClick = { /* TODO: Implementar notificaciones */ }) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notificaciones",
+                    contentDescription = stringResource(R.string.notifications),
                     tint = Color.White
                 )
             }
             IconButton(onClick = { /* TODO: Implementar configuración */ }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Configuración",
+                    contentDescription = stringResource(R.string.settings),
                     tint = Color.White
                 )
             }
@@ -241,7 +243,7 @@ private fun PokemonHeader(
         
         // Nivel
         Text(
-            text = "Nivel $currentLevel",
+            text = stringResource(R.string.level_format, currentLevel),
             fontSize = 14.sp, // Reducido de 16sp
             color = Color(0xFF9CA3AF)
         )
@@ -277,12 +279,12 @@ private fun PokemonProgressBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "EXP",
+                text = stringResource(R.string.exp),
                 fontSize = 12.sp,
                 color = Color(0xFF9CA3AF)
             )
             Text(
-                text = "$currentExp / $maxExp",
+                text = stringResource(R.string.exp_format, currentExp, maxExp),
                 fontSize = 12.sp,
                 color = Color(0xFF9CA3AF)
             )
@@ -340,7 +342,7 @@ private fun StakeSection(
                     modifier = Modifier
                         .size(40.dp)
                         .background(
-                            color = Color(0xFFFF6B35).copy(alpha = 0.2f),
+                            color = StreakColor.copy(alpha = 0.2f),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -355,13 +357,13 @@ private fun StakeSection(
                 
                 Column {
                     Text(
-                        text = "Racha de Entrenamientos",
+                        text = stringResource(R.string.training_streak),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                     Text(
-                        text = "Mantén tu consistencia diaria",
+                        text = stringResource(R.string.maintain_daily_consistency),
                         fontSize = 12.sp,
                         color = Color(0xFF9CA3AF)
                     )
@@ -377,10 +379,10 @@ private fun StakeSection(
                         text = "$streakDays",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF6B35)
+                        color = StreakColor
                     )
                     Text(
-                        text = "días",
+                        text = stringResource(R.string.days),
                         fontSize = 12.sp,
                         color = Color(0xFF9CA3AF)
                     )
@@ -403,7 +405,7 @@ private fun StakeSection(
                     Text(
                         text = day.dayName,
                         fontSize = 10.sp,
-                        color = if (day.isCompleted) Color(0xFFFF6B35) else Color(0xFF9CA3AF),
+                        color = if (day.isCompleted) StreakColor else Color(0xFF9CA3AF),
                         fontWeight = if (day.isCompleted) FontWeight.Bold else FontWeight.Normal,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center
@@ -470,7 +472,7 @@ private fun WeeklyProgressBar(
                         .fillMaxHeight(animatedHeight)
                         .background(
                             color = if (day.isCompleted) {
-                                Color(0xFFFF6B35)
+                                StreakColor
                             } else {
                                 Color(0xFF374151)
                             },
@@ -492,7 +494,7 @@ private fun QuickStatsSection(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = "Estadísticas de hoy",
+            text = stringResource(R.string.today_stats),
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.White,
@@ -504,17 +506,17 @@ private fun QuickStatsSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             QuickStatCard(
-                title = "Entrenamientos",
+                title = stringResource(R.string.trainings),
                 value = todayTrainings.toString(),
-                subtitle = "hoy",
+                subtitle = stringResource(R.string.today),
                 icon = Icons.Default.FitnessCenter,
                 modifier = Modifier.weight(1f)
             )
             
             QuickStatCard(
-                title = "Racha actual",
+                title = stringResource(R.string.current_streak),
                 value = currentStreak.toString(),
-                subtitle = "días",
+                subtitle = stringResource(R.string.days),
                 icon = Icons.Default.LocalFireDepartment,
                 modifier = Modifier.weight(1f)
             )
@@ -523,9 +525,9 @@ private fun QuickStatsSection(
         Spacer(modifier = Modifier.height(12.dp))
         
         QuickStatCard(
-            title = "Próximo nivel en",
+            title = stringResource(R.string.next_level_in),
             value = expToNextLevel.toString(),
-            subtitle = "exp",
+            subtitle = stringResource(R.string.exp),
             icon = Icons.Default.TrendingUp,
             modifier = Modifier.fillMaxWidth()
         )
@@ -616,7 +618,7 @@ private fun StartTrainingButton(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Iniciar Entrenamiento",
+                text = stringResource(R.string.start_training),
                 fontSize = 16.sp, // Reducido de 18sp
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -638,19 +640,19 @@ fun HomeScreenPreview() {
 fun HomeScreenWithStreakPreview() {
     val mockState = HomeState(
         selectedPokemon = "eevee",
-        pokemonName = "Eevee",
+        pokemonName = stringResource(R.string.eevee),
         currentLevel = 8,
         currentExp = 180,
         maxExp = 240,
         streakDays = 5,
         weeklyProgress = listOf(
-            DayProgress("Lun", true, 15),
-            DayProgress("Mar", true, 20),
-            DayProgress("Mie", true, 12),
-            DayProgress("Jue", true, 18),
-            DayProgress("Vie", true, 10),
-            DayProgress("Sab", false, 0),
-            DayProgress("Dom", false, 0)
+            DayProgress(stringResource(R.string.monday_short), true, 15),
+            DayProgress(stringResource(R.string.tuesday_short), true, 20),
+            DayProgress(stringResource(R.string.wednesday_short), true, 12),
+            DayProgress(stringResource(R.string.thursday_short), true, 18),
+            DayProgress(stringResource(R.string.friday_short), true, 10),
+            DayProgress(stringResource(R.string.saturday_short), false, 0),
+            DayProgress(stringResource(R.string.sunday_short), false, 0)
         ),
         todayTrainings = 2,
         expToNextLevel = 60

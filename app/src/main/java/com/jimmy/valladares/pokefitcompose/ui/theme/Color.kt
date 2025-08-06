@@ -11,6 +11,10 @@ val PokeFitGray = Color(0xFFB0BEC5)
 val PokeFitDarkGray = Color(0xFF37474F)
 val PokeFitGreen = Color(0xFF388E3C)
 
+// Color de racha (naranja-rojo vibrante)
+val StreakColor = Color(0xFFFF6B35)
+val StreakColorLight = Color(0xFFFF6B35)
+
 // Gradiente para el fondo de Welcome
 val GradientStart = Color(0xFF212531) // Azul marino oscuro
 val GradientEnd = Color(0xFF4B3A70)   // Púrpura
