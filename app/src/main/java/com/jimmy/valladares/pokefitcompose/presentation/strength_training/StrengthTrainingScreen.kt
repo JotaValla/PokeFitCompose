@@ -57,6 +57,10 @@ fun StrengthTrainingScreen(
                 is StrengthTrainingEvent.ShowMessage -> {
                     // Show snackbar or toast
                 }
+                is StrengthTrainingEvent.WorkoutSaved -> {
+                    // Handle workout saved successfully
+                    // You could show a different message or navigate somewhere
+                }
             }
         }
     }

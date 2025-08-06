@@ -52,6 +52,7 @@ sealed class StrengthTrainingAction {
 sealed class StrengthTrainingEvent {
     object TrainingCompleted : StrengthTrainingEvent()
     data class ShowMessage(val message: String) : StrengthTrainingEvent()
+    data class WorkoutSaved(val workoutId: String) : StrengthTrainingEvent()
 }
 
 data class ExerciseRow(

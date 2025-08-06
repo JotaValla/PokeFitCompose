@@ -2,7 +2,10 @@ package com.jimmy.valladares.pokefitcompose.presentation.strength_training
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
 import com.jimmy.valladares.pokefitcompose.data.local.TrainingPreferences
+import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
+import com.jimmy.valladares.pokefitcompose.utils.WorkoutUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -16,7 +19,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StrengthTrainingViewModel @Inject constructor(
-    private val trainingPreferences: TrainingPreferences
+    private val trainingPreferences: TrainingPreferences,
+    private val firestoreService: FirestoreService,
+    private val authService: FirebaseAuthService
 ) : ViewModel() {
     
     private val _state = MutableStateFlow(StrengthTrainingState())
@@ -294,6 +299,13 @@ class StrengthTrainingViewModel @Inject constructor(
     }
     
     private fun finishTraining() {
+        val currentState = _state.value
+        
+        // Verificar si el entrenamiento es válido antes de guardarlo
+        if (WorkoutUtils.isWorkoutValid(currentState)) {
+            saveWorkoutToFirestore(currentState)
+        }
+        
         stopTimer()
         stopRestTimer()
         
@@ -305,6 +317,37 @@ class StrengthTrainingViewModel @Inject constructor(
         viewModelScope.launch {
             _events.emit(StrengthTrainingEvent.TrainingCompleted)
             _events.emit(StrengthTrainingEvent.ShowMessage("¡Entrenamiento completado!"))
+        }
+    }
+    
+    private fun saveWorkoutToFirestore(state: StrengthTrainingState) {
+        viewModelScope.launch {
+            try {
+                val currentUser = authService.currentUser
+                if (currentUser?.uid != null) {
+                    // Crear el WorkoutSession a partir del estado actual
+                    val workoutSession = WorkoutUtils.createWorkoutSessionFromState(
+                        userId = currentUser.uid,
+                        state = state
+                    )
+                    
+                    // Guardar en Firestore
+                    when (val result = firestoreService.saveWorkoutSession(workoutSession)) {
+                        is com.jimmy.valladares.pokefitcompose.data.result.FirestoreResult.Success -> {
+                            val summaryText = WorkoutUtils.getWorkoutSummaryText(workoutSession)
+                            _events.emit(StrengthTrainingEvent.WorkoutSaved(result.data))
+                            _events.emit(StrengthTrainingEvent.ShowMessage("✅ $summaryText"))
+                        }
+                        is com.jimmy.valladares.pokefitcompose.data.result.FirestoreResult.Error -> {
+                            _events.emit(StrengthTrainingEvent.ShowMessage("❌ Error al guardar entrenamiento: ${result.message}"))
+                        }
+                    }
+                } else {
+                    _events.emit(StrengthTrainingEvent.ShowMessage("Error: Usuario no autenticado"))
+                }
+            } catch (e: Exception) {
+                _events.emit(StrengthTrainingEvent.ShowMessage("Error al guardar entrenamiento: ${e.message}"))
+            }
         }
     }
     
