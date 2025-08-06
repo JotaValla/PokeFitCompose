@@ -160,9 +160,17 @@ private fun PokemonHeader(
                 ),
             contentAlignment = Alignment.Center
         ) {
+            val pokemonAssetPath = if (selectedPokemon.isNotBlank()) {
+                "file:///android_asset/${selectedPokemon}.gif"
+            } else {
+                "file:///android_asset/eevee.gif" // Fallback por defecto
+            }
+            
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("file:///android_asset/${selectedPokemon}.gif")
+                    .data(pokemonAssetPath)
+                    .placeholder(R.drawable.pokeball)
+                    .error(R.drawable.pokeball)
                     .build(),
                 contentDescription = pokemonName,
                 modifier = Modifier.size(120.dp)

@@ -28,19 +28,19 @@ object PokemonData {
             key = "torchic",
             name = "Torchic",
             description = "Un Pokémon de tipo Fuego lleno de energía",
-            gifFileName = "Torchic.gif"
+            gifFileName = "torchic.gif"
         ),
         PokemonInfo(
             key = "machop",
             name = "Machop",
             description = "Un Pokémon de tipo Lucha muy fuerte",
-            gifFileName = "Machop.gif"
+            gifFileName = "machop.gif"
         ),
         PokemonInfo(
             key = "gible",
             name = "Gible", 
             description = "Un Pokémon de tipo Dragón/Tierra",
-            gifFileName = "Gible.gif"
+            gifFileName = "gible.gif"
         )
     )
 }

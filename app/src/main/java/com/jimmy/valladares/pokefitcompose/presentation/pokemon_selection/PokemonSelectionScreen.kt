@@ -344,7 +344,7 @@ private fun PokemonOption(
     ) {
         // GIF del Pokémon usando Coil AsyncImage para soporte completo de GIFs
         AsyncImage(
-            model = pokemon.drawableRes,
+            model = pokemon.getAssetUri(),
             contentDescription = pokemon.description,
             modifier = Modifier
                 .size(120.dp)

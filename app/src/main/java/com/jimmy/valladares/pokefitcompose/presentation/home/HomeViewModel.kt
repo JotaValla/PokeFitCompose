@@ -61,11 +61,13 @@ class HomeViewModel @Inject constructor(
                     )
 
                     // Obtener Pokemon seleccionado del perfil del usuario
-                    val selectedPokemon = userProfile?.selectedPokemon ?: "eevee"
+                    val selectedPokemon = userProfile?.selectedPokemon?.takeIf { it.isNotBlank() } ?: "eevee"
                     val pokemonName = getPokemonName(selectedPokemon)
                     val currentLevel = userProfile?.currentLevel ?: 1
                     val currentExp = userProfile?.currentExp ?: 0
                     val maxExp = calculateMaxExp(currentLevel)
+
+                    println("HomeViewModel: selectedPokemon = '$selectedPokemon', pokemonName = '$pokemonName'")
 
                     _state.update {
                         it.copy(
