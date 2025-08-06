@@ -1,5 +1,7 @@
 package com.jimmy.valladares.pokefitcompose.presentation.strength_training
 
+import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSession
+
 data class StrengthTrainingState(
     val timerValue: String = "00:00",
     val timerSeconds: Int = 0,
@@ -23,7 +25,12 @@ data class StrengthTrainingState(
     val restTimeSeconds: Int = 0,
     val restTimeValue: String = "00:00",
     val defaultRestTime: Int = 90, // 90 segundos por defecto
-    val showRestTimer: Boolean = false
+    val showRestTimer: Boolean = false,
+    
+    // Nuevos campos para el historial de entrenamientos
+    val workoutHistory: List<WorkoutSession> = emptyList(),
+    val isLoadingHistory: Boolean = false,
+    val showWorkoutHistory: Boolean = false
 )
 
 sealed class StrengthTrainingAction {
@@ -47,6 +54,10 @@ sealed class StrengthTrainingAction {
     object AddRestTime : StrengthTrainingAction() // Añadir 30 segundos más
     object SubtractRestTime : StrengthTrainingAction() // Restar 30 segundos
     data class SetRestTime(val seconds: Int) : StrengthTrainingAction()
+    
+    // Nuevas acciones para el historial de entrenamientos
+    object ToggleWorkoutHistory : StrengthTrainingAction()
+    object LoadWorkoutHistory : StrengthTrainingAction()
 }
 
 sealed class StrengthTrainingEvent {

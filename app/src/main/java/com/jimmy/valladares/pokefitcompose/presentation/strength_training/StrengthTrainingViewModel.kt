@@ -1,5 +1,6 @@
 package com.jimmy.valladares.pokefitcompose.presentation.strength_training
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
@@ -97,6 +98,12 @@ class StrengthTrainingViewModel @Inject constructor(
                 }
                 is StrengthTrainingAction.SetRestTime -> {
                     setRestTime(action.seconds)
+                }
+                StrengthTrainingAction.ToggleWorkoutHistory -> {
+                    toggleWorkoutHistory()
+                }
+                StrengthTrainingAction.LoadWorkoutHistory -> {
+                    loadWorkoutHistory()
                 }
             }
         } catch (e: Exception) {
@@ -301,9 +308,21 @@ class StrengthTrainingViewModel @Inject constructor(
     private fun finishTraining() {
         val currentState = _state.value
         
+        Log.d("StrengthTrainingVM", "finishTraining called")
+        Log.d("StrengthTrainingVM", "Timer seconds: ${currentState.timerSeconds}")
+        Log.d("StrengthTrainingVM", "Exercise rows: ${currentState.exerciseRows.size}")
+        Log.d("StrengthTrainingVM", "Completed rows: ${currentState.exerciseRows.count { it.isCompleted }}")
+        Log.d("StrengthTrainingVM", "Exercise history: ${currentState.exerciseHistory.size}")
+        
         // Verificar si el entrenamiento es válido antes de guardarlo
-        if (WorkoutUtils.isWorkoutValid(currentState)) {
+        val isValid = WorkoutUtils.isWorkoutValid(currentState)
+        Log.d("StrengthTrainingVM", "Workout is valid: $isValid")
+        
+        if (isValid) {
+            Log.d("StrengthTrainingVM", "Saving workout to Firestore...")
             saveWorkoutToFirestore(currentState)
+        } else {
+            Log.w("StrengthTrainingVM", "Workout not valid - not saving to Firestore")
         }
         
         stopTimer()
@@ -323,7 +342,10 @@ class StrengthTrainingViewModel @Inject constructor(
     private fun saveWorkoutToFirestore(state: StrengthTrainingState) {
         viewModelScope.launch {
             try {
+                Log.d("StrengthTrainingVM", "saveWorkoutToFirestore started")
                 val currentUser = authService.currentUser
+                Log.d("StrengthTrainingVM", "Current user: ${currentUser?.uid}")
+                
                 if (currentUser?.uid != null) {
                     // Crear el WorkoutSession a partir del estado actual
                     val workoutSession = WorkoutUtils.createWorkoutSessionFromState(
@@ -331,21 +353,27 @@ class StrengthTrainingViewModel @Inject constructor(
                         state = state
                     )
                     
+                    Log.d("StrengthTrainingVM", "Created workout session with ${workoutSession.exercises.size} exercises")
+                    
                     // Guardar en Firestore
                     when (val result = firestoreService.saveWorkoutSession(workoutSession)) {
                         is com.jimmy.valladares.pokefitcompose.data.result.FirestoreResult.Success -> {
+                            Log.d("StrengthTrainingVM", "Workout saved successfully with ID: ${result.data}")
                             val summaryText = WorkoutUtils.getWorkoutSummaryText(workoutSession)
                             _events.emit(StrengthTrainingEvent.WorkoutSaved(result.data))
                             _events.emit(StrengthTrainingEvent.ShowMessage("✅ $summaryText"))
                         }
                         is com.jimmy.valladares.pokefitcompose.data.result.FirestoreResult.Error -> {
+                            Log.e("StrengthTrainingVM", "Error saving workout: ${result.message}")
                             _events.emit(StrengthTrainingEvent.ShowMessage("❌ Error al guardar entrenamiento: ${result.message}"))
                         }
                     }
                 } else {
+                    Log.e("StrengthTrainingVM", "User not authenticated")
                     _events.emit(StrengthTrainingEvent.ShowMessage("Error: Usuario no autenticado"))
                 }
             } catch (e: Exception) {
+                Log.e("StrengthTrainingVM", "Exception saving workout", e)
                 _events.emit(StrengthTrainingEvent.ShowMessage("Error al guardar entrenamiento: ${e.message}"))
             }
         }
@@ -560,5 +588,40 @@ class StrengthTrainingViewModel @Inject constructor(
             ExerciseRow("8 x 12kg", 2, 12, 8),
             ExerciseRow("8 x 12kg", 3, 12, 8)
         )
+    }
+    
+    private fun toggleWorkoutHistory() {
+        val currentState = _state.value
+        val newShowHistory = !currentState.showWorkoutHistory
+        
+        _state.value = currentState.copy(showWorkoutHistory = newShowHistory)
+        
+        // Si se está mostrando el historial y aún no se ha cargado, cargar los datos
+        if (newShowHistory && currentState.workoutHistory.isEmpty() && !currentState.isLoadingHistory) {
+            loadWorkoutHistory()
+        }
+    }
+    
+    private fun loadWorkoutHistory() {
+        viewModelScope.launch {
+            try {
+                _state.value = _state.value.copy(isLoadingHistory = true)
+                
+                val currentUser = authService.currentUser
+                if (currentUser != null) {
+                    val workouts = firestoreService.getUserWorkouts(currentUser.uid, limit = 10)
+                    _state.value = _state.value.copy(
+                        workoutHistory = workouts,
+                        isLoadingHistory = false
+                    )
+                } else {
+                    _state.value = _state.value.copy(isLoadingHistory = false)
+                    _events.emit(StrengthTrainingEvent.ShowMessage("Usuario no autenticado"))
+                }
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(isLoadingHistory = false)
+                _events.emit(StrengthTrainingEvent.ShowMessage("Error al cargar historial: ${e.message}"))
+            }
+        }
     }
 }

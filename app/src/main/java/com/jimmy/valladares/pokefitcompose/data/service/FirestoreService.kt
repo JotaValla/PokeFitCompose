@@ -124,16 +124,16 @@ class FirestoreService @Inject constructor() {
         return try {
             Log.d(TAG, "Getting workouts for user: $userId")
             
+            // Solución temporal: Obtener todos los entrenamientos del usuario y ordenar en el cliente
             val documents = firestore.collection(WORKOUTS_COLLECTION)
                 .whereEqualTo("userId", userId)
-                .orderBy("completedAt", Query.Direction.DESCENDING)
-                .limit(limit.toLong())
                 .get()
                 .await()
             
             val workouts = documents.documents.mapNotNull { document ->
                 document.toObject(WorkoutSession::class.java)
-            }
+            }.sortedByDescending { it.completedAt }
+                .take(limit)
             
             Log.d(TAG, "Retrieved ${workouts.size} workouts for user")
             workouts

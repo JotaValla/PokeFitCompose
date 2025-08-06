@@ -149,5 +149,18 @@
     <string name="profile_title">👤 Perfil</string>
     <string name="user_description">Usuario</string>
     <string name="sign_out">Cerrar Sesión</string>
+    
+    <!-- Workout History -->
+    <string name="workout_history">Historial de Entrenamientos</string>
+    <string name="view_history">Ver Historial</string>
+    <string name="hide_history">Ocultar Historial</string>
+    <string name="no_workouts_yet">Aún no tienes entrenamientos registrados</string>
+    <string name="start_first_workout">¡Comienza tu primer entrenamiento!</string>
+    <string name="loading_history">Cargando historial...</string>
+    <string name="workout_date_format">%1$s</string>
+    <string name="workout_duration_format">Duración: %1$s</string>
+    <string name="workout_exercises_count">%1$d ejercicios</string>
+    <string name="workout_sets_count">%1$d series completadas</string>
+    <string name="workout_summary_format">%1$s - %2$d ejercicios</string>
 
 </resources>

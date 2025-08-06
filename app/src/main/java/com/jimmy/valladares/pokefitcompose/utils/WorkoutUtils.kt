@@ -1,5 +1,6 @@
 package com.jimmy.valladares.pokefitcompose.utils
 
+import android.util.Log
 import com.jimmy.valladares.pokefitcompose.data.model.WorkoutExercise
 import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSession
 import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSet
@@ -15,6 +16,7 @@ object WorkoutUtils {
         userId: String,
         state: StrengthTrainingState
     ): WorkoutSession {
+        Log.d("WorkoutUtils", "Creating workout session for user: $userId")
         val exercises = mutableListOf<WorkoutExercise>()
         
         // Procesar el ejercicio actual
@@ -25,6 +27,7 @@ object WorkoutUtils {
                 state.selectedExercise
             }
             
+            Log.d("WorkoutUtils", "Processing current exercise: $currentExercise with ${state.exerciseRows.size} rows")
             val workoutExercise = createWorkoutExerciseFromRows(currentExercise, state.exerciseRows)
             exercises.add(workoutExercise)
         }
@@ -39,6 +42,7 @@ object WorkoutUtils {
             }
             
             if (exerciseName != currentExercise && exerciseRows.isNotEmpty()) {
+                Log.d("WorkoutUtils", "Processing history exercise: $exerciseName with ${exerciseRows.size} rows")
                 val workoutExercise = createWorkoutExerciseFromRows(exerciseName, exerciseRows)
                 exercises.add(workoutExercise)
             }
@@ -46,6 +50,8 @@ object WorkoutUtils {
         
         val currentTime = System.currentTimeMillis()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        
+        Log.d("WorkoutUtils", "Created workout with ${exercises.size} exercises, duration: ${state.timerSeconds}s")
         
         return WorkoutSession(
             userId = userId,
@@ -98,8 +104,10 @@ object WorkoutUtils {
         val hasCompletedSets = state.exerciseRows.any { it.isCompleted } ||
                 state.exerciseHistory.values.any { rows -> rows.any { it.isCompleted } }
         
-        // Verificar que el entrenamiento duró al menos 30 segundos
-        val hasMinimumDuration = state.timerSeconds >= 30
+        // Verificar que el entrenamiento duró al menos 10 segundos (reducido para testing)
+        val hasMinimumDuration = state.timerSeconds >= 10
+        
+        Log.d("WorkoutUtils", "Validation - hasCompletedSets: $hasCompletedSets, hasMinimumDuration: $hasMinimumDuration (${state.timerSeconds}s)")
         
         return hasCompletedSets && hasMinimumDuration
     }

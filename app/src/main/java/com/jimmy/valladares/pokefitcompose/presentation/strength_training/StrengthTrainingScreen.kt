@@ -34,12 +34,14 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
 import com.jimmy.valladares.pokefitcompose.R
+import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSession
 import com.jimmy.valladares.pokefitcompose.presentation.home.BottomNavItem
 import com.jimmy.valladares.pokefitcompose.presentation.navigation.BottomNavigationBar
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientEnd
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientStart
 import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitComposeTheme
 import com.jimmy.valladares.pokefitcompose.ui.theme.StreakColor
+import kotlin.collections.take
 
 @Composable
 fun StrengthTrainingScreen(
@@ -106,6 +108,16 @@ fun StrengthTrainingScreen(
                         state = state,
                         onAction = viewModel::onAction
                     )
+                }
+
+                // Workout History Section (only visible when not training)
+                if (!state.isTrainingStarted) {
+                    item {
+                        WorkoutHistorySection(
+                            state = state,
+                            onAction = viewModel::onAction
+                        )
+                    }
                 }
 
                 // Exercise Table Section
@@ -1086,6 +1098,223 @@ private fun FloatingRestTimer(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun WorkoutHistorySection(
+    state: StrengthTrainingState,
+    onAction: (StrengthTrainingAction) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Black.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.workout_history),
+                    fontSize = 20.sp,
+                    color = Color(0xFFE8E3FF),
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Button(
+                    onClick = { onAction(StrengthTrainingAction.ToggleWorkoutHistory) },
+                    modifier = Modifier.height(36.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF8B5CF6).copy(alpha = 0.8f)
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (state.showWorkoutHistory) R.string.hide_history
+                            else R.string.view_history
+                        ),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+            
+            if (state.showWorkoutHistory) {
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                when {
+                    state.isLoadingHistory -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(32.dp),
+                                    color = Color(0xFF8B5CF6)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.loading_history),
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFE8E3FF).copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                    
+                    state.workoutHistory.isEmpty() -> {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.Black.copy(alpha = 0.2f)
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "🏋️‍♂️",
+                                    fontSize = 32.sp,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                                Text(
+                                    text = stringResource(R.string.no_workouts_yet),
+                                    fontSize = 14.sp,
+                                    color = Color(0xFFE8E3FF),
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.start_first_workout),
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFE8E3FF).copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                    
+                    else -> {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp)
+                        ) {
+                            items(state.workoutHistory.take(5).size) { index ->
+                                val workout = state.workoutHistory[index]
+                                WorkoutHistoryCard(workout = workout)
+                            }
+                        }
+                        
+                        if (state.workoutHistory.size > 5) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Y ${state.workoutHistory.size - 5} entrenamientos más...",
+                                fontSize = 11.sp,
+                                color = Color(0xFFE8E3FF).copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WorkoutHistoryCard(
+    workout: WorkoutSession
+) {
+    Card(
+        modifier = Modifier
+            .width(160.dp)
+            .height(120.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF8B5CF6).copy(alpha = 0.15f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = workout.date,
+                    fontSize = 12.sp,
+                    color = Color(0xFF8B5CF6),
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(
+                        R.string.workout_duration_format,
+                        workout.totalDurationFormatted
+                    ),
+                    fontSize = 10.sp,
+                    color = Color(0xFFE8E3FF).copy(alpha = 0.8f)
+                )
+            }
+            
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.workout_exercises_count, workout.exercises.size),
+                        fontSize = 10.sp,
+                        color = Color(0xFFE8E3FF).copy(alpha = 0.7f)
+                    )
+                    Text(
+                        text = "💪",
+                        fontSize = 12.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = stringResource(
+                        R.string.workout_sets_count,
+                        workout.exercises.sumOf { it.sets.size }
+                    ),
+                    fontSize = 10.sp,
+                    color = Color(0xFFE8E3FF).copy(alpha = 0.7f)
+                )
+            }
+        }
+    }
+}
+
+private fun formatDuration(minutes: Int): String {
+    return if (minutes < 60) {
+        "${minutes}min"
+    } else {
+        val hours = minutes / 60
+        val remainingMinutes = minutes % 60
+        "${hours}h ${remainingMinutes}min"
     }
 }
 
