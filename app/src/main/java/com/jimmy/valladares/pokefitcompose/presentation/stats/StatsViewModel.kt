@@ -39,26 +39,29 @@ class StatsViewModel @Inject constructor(
                             it.key == profile.selectedPokemon 
                         }
                         
+                        // Calcular experiencia total: (nivel - 1) * 1000 + experiencia actual
+                        val totalExperience = (profile.currentLevel - 1) * 1000 + profile.currentExp
+                        
                         _state.value = _state.value.copy(
                             pokemonName = pokemonInfo?.name ?: "Eevee",
                             selectedPokemon = profile.selectedPokemon,
-                            currentLevel = calculateLevel(profile.totalExperience),
-                            currentExp = calculateCurrentLevelExp(profile.totalExperience),
-                            maxExp = calculateExpForNextLevel(calculateLevel(profile.totalExperience)),
-                            totalExp = profile.totalExperience,
-                            totalLevelsGained = calculateLevel(profile.totalExperience) - 1
+                            currentLevel = profile.currentLevel,
+                            currentExp = profile.currentExp,
+                            maxExp = calculateExpForNextLevel(profile.currentLevel),
+                            totalExp = totalExperience,
+                            totalLevelsGained = profile.currentLevel - 1
                         )
                     }
                     
-                    // Por ahora usar datos quemados para las estadísticas de actividad
-                    // En el futuro, estos datos vendrán de una colección de workouts en Firestore
+                    // Obtener estadísticas reales de workouts
+                    val workoutStats = firestoreService.getWorkoutStats(userId)
                     _state.value = _state.value.copy(
-                        averageDaysPerWeek = 4.2f,
-                        maxStreak = 12,
-                        averageMinutes = 35,
-                        totalWorkouts = 48,
-                        weeklyExp = 1250,
-                        previousWeekExp = 980,
+                        averageDaysPerWeek = workoutStats.averageDaysPerWeek,
+                        maxStreak = workoutStats.maxStreak,
+                        averageMinutes = workoutStats.averageMinutes,
+                        totalWorkouts = workoutStats.totalWorkouts,
+                        weeklyExp = workoutStats.weeklyExp,
+                        previousWeekExp = workoutStats.previousWeekExp,
                         isLoading = false
                     )
                 } else {
@@ -102,15 +105,7 @@ class StatsViewModel @Inject constructor(
         }
     }
     
-    private fun calculateLevel(totalExp: Int): Int {
-        return (totalExp / 1000) + 1
-    }
-    
-    private fun calculateCurrentLevelExp(totalExp: Int): Int {
-        return totalExp % 1000
-    }
-    
-    private fun calculateExpForNextLevel(level: Int): Int {
+    private fun calculateExpForNextLevel(currentLevel: Int): Int {
         return 1000 // Por simplicidad, cada nivel requiere 1000 EXP
     }
 }

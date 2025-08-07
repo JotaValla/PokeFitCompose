@@ -6,6 +6,7 @@ data class WorkoutSession(
     val exercises: List<WorkoutExercise> = emptyList(),
     val totalDurationSeconds: Int = 0,
     val totalDurationFormatted: String = "",
+    val expGained: Int = 0, // Experiencia ganada en este workout
     val completedAt: Long = System.currentTimeMillis(),
     val date: String = "", // Fecha en formato "YYYY-MM-DD" para consultas
     val workoutType: String = "strength_training" // Por ahora solo entrenamiento de fuerza
@@ -38,4 +39,14 @@ data class WorkoutSummary(
     val longestStreak: Int = 0,
     val favoriteExercises: Map<String, Int> = emptyMap(), // Ejercicio -> cantidad de veces realizado
     val updatedAt: Long = System.currentTimeMillis()
+)
+
+// Modelo para estadísticas específicas de la pantalla Stats
+data class WorkoutStats(
+    val averageDaysPerWeek: Float = 0f,
+    val maxStreak: Int = 0,
+    val averageMinutes: Int = 0,
+    val totalWorkouts: Int = 0,
+    val weeklyExp: Int = 0,
+    val previousWeekExp: Int = 0
 )

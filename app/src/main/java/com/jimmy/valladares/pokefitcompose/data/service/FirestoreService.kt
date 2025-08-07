@@ -9,6 +9,7 @@ import com.jimmy.valladares.pokefitcompose.data.auth.AuthResult
 import com.jimmy.valladares.pokefitcompose.data.model.UserProfile
 import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSession
 import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSummary
+import com.jimmy.valladares.pokefitcompose.data.model.WorkoutStats
 import com.jimmy.valladares.pokefitcompose.data.result.FirestoreResult
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -292,5 +293,88 @@ class FirestoreService @Inject constructor() {
             Log.e(TAG, "Error calculating streak", e)
             1
         }
+    }
+    
+    // Obtener estadísticas de workouts para la pantalla de estadísticas
+    suspend fun getWorkoutStats(userId: String): WorkoutStats {
+        return try {
+            val workouts = getUserWorkouts(userId, limit = 100) // Obtener más workouts para estadísticas
+            val summary = getWorkoutSummary(userId)
+            
+            // Calcular días promedio por semana (últimas 4 semanas)
+            val averageDaysPerWeek = calculateAverageDaysPerWeek(workouts)
+            
+            // Calcular minutos promedio por workout
+            val averageMinutes = if (workouts.isNotEmpty()) {
+                workouts.map { it.totalDurationSeconds / 60 }.average().toInt()
+            } else {
+                0
+            }
+            
+            // Calcular experiencia de esta semana vs semana anterior
+            val (weeklyExp, previousWeekExp) = calculateWeeklyExperience(workouts)
+            
+            WorkoutStats(
+                averageDaysPerWeek = averageDaysPerWeek,
+                maxStreak = summary?.longestStreak ?: 0,
+                averageMinutes = averageMinutes,
+                totalWorkouts = summary?.totalWorkouts ?: 0,
+                weeklyExp = weeklyExp,
+                previousWeekExp = previousWeekExp
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting workout stats", e)
+            WorkoutStats()
+        }
+    }
+    
+    private fun calculateAverageDaysPerWeek(workouts: List<WorkoutSession>): Float {
+        if (workouts.isEmpty()) return 0f
+        
+        // Agrupar workouts por semana (últimas 4 semanas)
+        val currentTime = System.currentTimeMillis()
+        val fourWeeksAgo = currentTime - (4 * 7 * 24 * 60 * 60 * 1000L)
+        
+        val recentWorkouts = workouts.filter { it.completedAt >= fourWeeksAgo }
+        
+        if (recentWorkouts.isEmpty()) return 0f
+        
+        // Agrupar por semana
+        val workoutsByWeek = recentWorkouts.groupBy { workout ->
+            val weekStart = workout.completedAt - (workout.completedAt % (7 * 24 * 60 * 60 * 1000L))
+            weekStart
+        }
+        
+        val daysPerWeek = workoutsByWeek.map { (_, weekWorkouts) ->
+            // Contar días únicos en la semana
+            weekWorkouts.map { workout ->
+                val dayStart = workout.completedAt - (workout.completedAt % (24 * 60 * 60 * 1000L))
+                dayStart
+            }.distinct().size
+        }
+        
+        return if (daysPerWeek.isNotEmpty()) {
+            daysPerWeek.average().toFloat()
+        } else {
+            0f
+        }
+    }
+    
+    private fun calculateWeeklyExperience(workouts: List<WorkoutSession>): Pair<Int, Int> {
+        val currentTime = System.currentTimeMillis()
+        val oneWeekAgo = currentTime - (7 * 24 * 60 * 60 * 1000L)
+        val twoWeeksAgo = currentTime - (2 * 7 * 24 * 60 * 60 * 1000L)
+        
+        // Experiencia esta semana (últimos 7 días)
+        val thisWeekWorkouts = workouts.filter { it.completedAt >= oneWeekAgo }
+        val weeklyExp = thisWeekWorkouts.sumOf { it.expGained }
+        
+        // Experiencia semana anterior (7-14 días atrás)
+        val lastWeekWorkouts = workouts.filter { 
+            it.completedAt >= twoWeeksAgo && it.completedAt < oneWeekAgo 
+        }
+        val previousWeekExp = lastWeekWorkouts.sumOf { it.expGained }
+        
+        return Pair(weeklyExp, previousWeekExp)
     }
 }

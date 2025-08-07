@@ -51,13 +51,17 @@ object WorkoutUtils {
         val currentTime = System.currentTimeMillis()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         
-        Log.d("WorkoutUtils", "Created workout with ${exercises.size} exercises, duration: ${state.timerSeconds}s")
+        // Calcular experiencia ganada basada en la duración y número de ejercicios
+        val expGained = calculateExperienceGained(exercises, state.timerSeconds)
+        
+        Log.d("WorkoutUtils", "Created workout with ${exercises.size} exercises, duration: ${state.timerSeconds}s, exp: $expGained")
         
         return WorkoutSession(
             userId = userId,
             exercises = exercises,
             totalDurationSeconds = state.timerSeconds,
             totalDurationFormatted = state.timerValue,
+            expGained = expGained,
             completedAt = currentTime,
             date = dateFormat.format(Date(currentTime)),
             workoutType = "strength_training"
@@ -118,5 +122,30 @@ object WorkoutUtils {
         
         return "Entrenamiento completado: $exerciseNames. " +
                 "$totalSets series completadas en ${workoutSession.totalDurationFormatted}"
+    }
+    
+    private fun calculateExperienceGained(exercises: List<WorkoutExercise>, durationSeconds: Int): Int {
+        // Experiencia base por ejercicio completado
+        val exerciseExp = exercises.sumOf { exercise ->
+            val completedSets = exercise.sets.count { it.isCompleted }
+            completedSets * 10 // 10 EXP por serie completada
+        }
+        
+        // Bonus por duración (1 EXP por minuto de entrenamiento)
+        val durationExp = (durationSeconds / 60).coerceAtMost(60) // Máximo 60 EXP por duración
+        
+        // Bonus por variedad de ejercicios
+        val varietyBonus = when (exercises.size) {
+            1 -> 0
+            2 -> 20
+            3 -> 40
+            4 -> 60
+            else -> 80
+        }
+        
+        val totalExp = exerciseExp + durationExp + varietyBonus
+        
+        // Mínimo 50 EXP, máximo 200 EXP por entrenamiento
+        return totalExp.coerceIn(50, 200)
     }
 }
