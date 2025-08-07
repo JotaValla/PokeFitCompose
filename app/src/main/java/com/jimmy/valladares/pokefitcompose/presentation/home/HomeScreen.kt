@@ -96,7 +96,7 @@ fun HomeScreen(
                         .padding(horizontal = 20.dp)
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     // Header con Pokémon - más compacto
                     PokemonHeader(
                         pokemonName = state.pokemonName,
@@ -666,5 +666,89 @@ fun HomeScreenWithStreakPreview() {
     PokeFitComposeTheme {
         // Preview con estado mock sería ideal, pero por simplicidad usamos la función normal
         HomeScreen()
+    }
+}
+
+@Composable
+private fun UserHeader(
+    userName: String,
+    userAge: Int,
+    userWeight: Double,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = Color.Black.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Avatar del usuario con GIF
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .background(
+                    color = Color.Black,
+                    shape = CircleShape
+                )
+                .border(
+                    width = 2.dp,
+                    color = Color(0xFF10B981),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data("file:///android_asset/User.gif")
+                    .placeholder(R.drawable.pokeball)
+                    .error(R.drawable.pokeball)
+                    .build(),
+                contentDescription = "Usuario",
+                modifier = Modifier.size(45.dp)
+            )
+        }
+        
+        // Información del usuario
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = if (userName.isNotBlank()) "¡Hola, $userName!" else "¡Hola, Entrenador!",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (userAge > 0) {
+                    Text(
+                        text = "$userAge años",
+                        fontSize = 12.sp,
+                        color = Color(0xFF9CA3AF)
+                    )
+                }
+                
+                if (userWeight > 0) {
+                    Text(
+                        text = "${String.format("%.1f", userWeight)} kg",
+                        fontSize = 12.sp,
+                        color = Color(0xFF9CA3AF)
+                    )
+                }
+            }
+        }
+        
+        // Icono de usuario
+        Text(
+            text = "👋",
+            fontSize = 20.sp
+        )
     }
 }

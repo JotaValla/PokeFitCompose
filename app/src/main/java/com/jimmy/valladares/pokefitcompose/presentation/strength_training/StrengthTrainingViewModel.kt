@@ -416,6 +416,15 @@ class StrengthTrainingViewModel @Inject constructor(
                             )
                         )
                     }
+                    
+                    // Mensaje especial si el Pokémon evolucionó
+                    if (levelUpResult.evolved && levelUpResult.evolutionName != null) {
+                        _events.emit(
+                            StrengthTrainingEvent.ShowMessage(
+                                "✨ ¡${levelUpResult.previousPokemon?.replaceFirstChar { it.uppercase() }} evolucionó a ${levelUpResult.evolutionName.replaceFirstChar { it.uppercase() }}! ✨"
+                            )
+                        )
+                    }
                 } else {
                     Log.w("StrengthTrainingVM", "Failed to process experience gain")
                 }

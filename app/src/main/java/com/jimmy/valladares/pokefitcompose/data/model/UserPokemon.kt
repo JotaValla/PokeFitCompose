@@ -22,14 +22,12 @@ data class UserPokemon(
         return maxExp - currentExp
     }
     
-    // Verificar si puede evolucionar (simplificado)
+    // Verificar si puede evolucionar (basado en niveles pares)
     fun canEvolve(): Boolean {
         return when (pokemonName.lowercase()) {
-            "machop" -> level >= 28
-            "charmander" -> level >= 16
-            "squirtle" -> level >= 16
-            "bulbasaur" -> level >= 16
-            "pikachu" -> level >= 20 // Con piedra trueno, pero simplificamos
+            "torchic" -> level >= 2 && level % 2 == 0
+            "machop" -> level >= 2 && level % 2 == 0
+            "gible" -> level >= 2 && level % 2 == 0
             else -> false
         }
     }
@@ -37,11 +35,9 @@ data class UserPokemon(
     // Obtener el nombre del Pokémon evolucionado
     fun getEvolutionName(): String {
         return when (pokemonName.lowercase()) {
+            "torchic" -> "combusken"
             "machop" -> "machoke"
-            "charmander" -> "charmeleon" 
-            "squirtle" -> "wartortle"
-            "bulbasaur" -> "ivysaur"
-            "pikachu" -> "raichu"
+            "gible" -> "gabite"
             else -> pokemonName
         }
     }

@@ -146,7 +146,7 @@
     <string name="coming_soon">Próximamente...</string>
     
     <!-- Profile Screen -->
-    <string name="profile_title">👤 Perfil</string>
+    <string name="profile_title">Perfil</string>
     <string name="user_description">Usuario</string>
     <string name="sign_out">Cerrar Sesión</string>
     

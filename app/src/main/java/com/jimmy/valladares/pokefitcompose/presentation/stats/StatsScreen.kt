@@ -6,12 +6,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,7 +72,7 @@ fun StatsScreen(
                     textAlign = TextAlign.Center
                 )
             }
-            
+
             // Pokemon Header
             item {
                 Card(
@@ -290,7 +298,7 @@ private fun ActivityStatsCard(
                 StatItem(
                     title = "Días/Semana",
                     value = String.format("%.1f", averageDaysPerWeek),
-                    icon = "📅",
+                    icon = Icons.Default.CalendarToday,
                     modifier = Modifier.weight(1f)
                 )
                 
@@ -298,7 +306,7 @@ private fun ActivityStatsCard(
                 StatItem(
                     title = "Racha Máxima",
                     value = "$maxStreak días",
-                    icon = "🔥",
+                    icon = Icons.Default.LocalFireDepartment,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -313,7 +321,7 @@ private fun ActivityStatsCard(
                 StatItem(
                     title = "Min Promedio",
                     value = "$averageMinutes min",
-                    icon = "⏱️",
+                    icon = Icons.Default.AccessTime,
                     modifier = Modifier.weight(1f)
                 )
                 
@@ -321,7 +329,7 @@ private fun ActivityStatsCard(
                 StatItem(
                     title = "Entrenamientos",
                     value = "$totalWorkouts",
-                    icon = "💪",
+                    icon = Icons.Default.FitnessCenter,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -333,7 +341,7 @@ private fun ActivityStatsCard(
 private fun StatItem(
     title: String,
     value: String,
-    icon: String,
+    icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -349,9 +357,11 @@ private fun StatItem(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = icon,
-                fontSize = 20.sp
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = Color(0xFF8B5CF6),
+                modifier = Modifier.size(24.dp)
             )
             
             Spacer(modifier = Modifier.height(4.dp))
@@ -401,9 +411,11 @@ private fun WeeklyExpCard(
                     color = Color.White
                 )
                 
-                Text(
-                    text = "📈",
-                    fontSize = 24.sp
+                Icon(
+                    imageVector = Icons.Default.TrendingUp,
+                    contentDescription = "Progreso semanal",
+                    tint = Color(0xFF8B5CF6),
+                    modifier = Modifier.size(24.dp)
                 )
             }
             
@@ -470,9 +482,11 @@ private fun TotalExpCard(
                     color = Color.White
                 )
                 
-                Text(
-                    text = "🏆",
-                    fontSize = 24.sp
+                Icon(
+                    imageVector = Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint = Color(0xFFB17CE8),
+                    modifier = Modifier.size(24.dp)
                 )
             }
             
@@ -495,6 +509,92 @@ private fun TotalExpCard(
                 color = Color(0xFF9CA3AF),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun UserHeader(
+    userName: String,
+    userAge: Int,
+    userWeight: Double,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Avatar del usuario con GIF
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .background(
+                    color = Color.Black,
+                    shape = CircleShape
+                )
+                .border(
+                    width = 2.dp,
+                    color = Color(0xFF10B981),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data("file:///android_asset/User.gif")
+                    .placeholder(R.drawable.pokeball)
+                    .error(R.drawable.pokeball)
+                    .build(),
+                contentDescription = "Usuario",
+                modifier = Modifier.size(60.dp)
+            )
+        }
+        
+        // Información del usuario
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = if (userName.isNotBlank()) userName else "Usuario",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            if (userAge > 0) {
+                Text(
+                    text = "$userAge años",
+                    fontSize = 14.sp,
+                    color = Color(0xFF9CA3AF)
+                )
+            }
+            
+            if (userWeight > 0) {
+                Text(
+                    text = "${String.format("%.1f", userWeight)} kg",
+                    fontSize = 14.sp,
+                    color = Color(0xFF9CA3AF)
+                )
+            }
+        }
+        
+        // Icono de perfil
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = Color(0xFF10B981).copy(alpha = 0.2f),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "👤",
+                fontSize = 20.sp
             )
         }
     }

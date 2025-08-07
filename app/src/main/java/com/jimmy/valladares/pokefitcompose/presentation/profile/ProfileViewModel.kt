@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimmy.valladares.pokefitcompose.data.auth.AuthResult
 import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
+import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
+import com.jimmy.valladares.pokefitcompose.data.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authService: FirebaseAuthService
+    private val authService: FirebaseAuthService,
+    private val firestoreService: FirestoreService
 ) : ViewModel() {
     
     private val _state = MutableStateFlow(ProfileState())
@@ -37,11 +40,24 @@ class ProfileViewModel @Inject constructor(
     }
     
     private fun loadUserInfo() {
-        val currentUser = authService.currentUser
-        _state.value = _state.value.copy(
-            userEmail = currentUser?.email ?: "",
-            userName = currentUser?.displayName ?: "Usuario"
-        )
+        viewModelScope.launch {
+            val currentUser = authService.currentUser
+            if (currentUser != null) {
+                // Cargar información completa del usuario desde Firestore
+                firestoreService.getUserProfile(currentUser.uid)?.let { userProfile ->
+                    _state.value = _state.value.copy(
+                        userEmail = currentUser.email ?: "",
+                        userName = currentUser.displayName ?: "Usuario",
+                        userProfile = userProfile
+                    )
+                } ?: run {
+                    _state.value = _state.value.copy(
+                        userEmail = currentUser.email ?: "",
+                        userName = currentUser.displayName ?: "Usuario"
+                    )
+                }
+            }
+        }
     }
     
     private fun handleSignOut() {
@@ -68,6 +84,7 @@ data class ProfileState(
     val isLoading: Boolean = false,
     val userName: String = "",
     val userEmail: String = "",
+    val userProfile: UserProfile? = null,
     val errorMessage: String? = null
 )
 

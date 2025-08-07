@@ -54,7 +54,10 @@ class StatsViewModel @Inject constructor(
                             currentExp = profile.currentExp,
                             maxExp = experienceService.getExpForNextLevel(profile.currentLevel),
                             totalExp = totalExperience,
-                            totalLevelsGained = profile.currentLevel - 1
+                            totalLevelsGained = profile.currentLevel - 1,
+                            userName = profile.name,
+                            userAge = profile.age,
+                            userWeight = profile.weight
                         )
                     }
                     

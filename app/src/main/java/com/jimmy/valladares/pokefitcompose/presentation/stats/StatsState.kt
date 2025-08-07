@@ -8,6 +8,11 @@ data class StatsState(
     val currentExp: Int = 0,
     val maxExp: Int = 1000,
     
+    // Información del Usuario
+    val userName: String = "",
+    val userAge: Int = 0,
+    val userWeight: Double = 0.0,
+    
     // Estadísticas de actividad
     val averageDaysPerWeek: Float = 0f,
     val maxStreak: Int = 0,

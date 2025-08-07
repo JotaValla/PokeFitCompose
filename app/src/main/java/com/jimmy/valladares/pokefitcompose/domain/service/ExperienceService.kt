@@ -263,4 +263,70 @@ class ExperienceService @Inject constructor() {
         // Experiencia total = EXP de niveles anteriores + EXP actual del nivel
         return previousLevelsExp + currentExp
     }
+    
+    /**
+     * Mapeo de evoluciones de Pokémon
+     */
+    private val evolutionMap = mapOf(
+        "torchic" to "combusken",
+        "machop" to "machoke", 
+        "gible" to "gabite"
+    )
+    
+    /**
+     * Verifica si un Pokémon puede evolucionar en el nivel dado
+     * Los Pokémon evolucionan en niveles pares (2, 4, 6, etc.)
+     */
+    fun canPokemonEvolve(currentPokemon: String, level: Int): Boolean {
+        return level >= 2 && level % 2 == 0 && evolutionMap.containsKey(currentPokemon.lowercase())
+    }
+    
+    /**
+     * Obtiene la evolución de un Pokémon
+     */
+    fun getEvolution(currentPokemon: String): String? {
+        return evolutionMap[currentPokemon.lowercase()]
+    }
+    
+    /**
+     * Verifica si hubo un cambio de nivel y si el Pokémon debería evolucionar
+     */
+    fun checkLevelUpAndEvolution(
+        previousTotalExp: Int,
+        newTotalExp: Int,
+        currentPokemon: String
+    ): EvolutionResult {
+        val previousLevel = calculateLevel(previousTotalExp)
+        val newLevel = calculateLevel(newTotalExp)
+        
+        if (newLevel > previousLevel) {
+            // Hubo level up
+            val shouldEvolve = canPokemonEvolve(currentPokemon, newLevel)
+            val evolution = if (shouldEvolve) getEvolution(currentPokemon) else null
+            
+            return EvolutionResult(
+                leveledUp = true,
+                previousLevel = previousLevel,
+                newLevel = newLevel,
+                shouldEvolve = shouldEvolve,
+                evolution = evolution
+            )
+        }
+        
+        return EvolutionResult(
+            leveledUp = false,
+            previousLevel = previousLevel,
+            newLevel = newLevel,
+            shouldEvolve = false,
+            evolution = null
+        )
+    }
+    
+    data class EvolutionResult(
+        val leveledUp: Boolean,
+        val previousLevel: Int,
+        val newLevel: Int,
+        val shouldEvolve: Boolean,
+        val evolution: String?
+    )
 }

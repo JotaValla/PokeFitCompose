@@ -7,6 +7,7 @@ import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
 import com.jimmy.valladares.pokefitcompose.data.auth.AuthResult
 import com.jimmy.valladares.pokefitcompose.domain.service.ExperienceService
 import com.jimmy.valladares.pokefitcompose.domain.service.PokemonProgressService
+import com.jimmy.valladares.pokefitcompose.domain.service.EvolutionService
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,7 +15,8 @@ import javax.inject.Singleton
 class UserProgressService @Inject constructor(
     private val firestoreService: FirestoreService,
     private val experienceService: ExperienceService,
-    private val pokemonProgressService: PokemonProgressService
+    private val pokemonProgressService: PokemonProgressService,
+    private val evolutionService: EvolutionService
 ) {
     
     companion object {
@@ -27,7 +29,10 @@ class UserProgressService @Inject constructor(
         val leveledUp: Boolean,
         val expGained: Int,
         val expBreakdown: Map<String, Int>,
-        val pokemonLevelUp: PokemonLevelUp? = null
+        val pokemonLevelUp: PokemonLevelUp? = null,
+        val evolved: Boolean = false,
+        val evolutionName: String? = null,
+        val previousPokemon: String? = null
     )
     
     /**
@@ -65,9 +70,22 @@ class UserProgressService @Inject constructor(
             Log.d(TAG, "Experience gained: ${experienceGain.totalExp} EXP")
             
             // Calcular nuevo nivel y experiencia total
+            val previousTotalExp = currentProfile.currentExp
             val newTotalExp = currentProfile.currentExp + experienceGain.totalExp
-            val previousLevel = experienceService.calculateLevel(currentProfile.currentExp)
+            val previousLevel = experienceService.calculateLevel(previousTotalExp)
             val newLevel = experienceService.calculateLevel(newTotalExp)
+            
+            // Verificar evolución del Pokémon
+            var evolutionResult: com.jimmy.valladares.pokefitcompose.domain.service.EvolutionCheckResult? = null
+            if (newLevel > previousLevel) {
+                Log.d(TAG, "User leveled up! Checking for Pokémon evolution...")
+                evolutionResult = evolutionService.checkAndHandleEvolution(
+                    userId = userId,
+                    previousTotalExp = previousTotalExp,
+                    newTotalExp = newTotalExp,
+                    currentUserProfile = currentProfile
+                )
+            }
             
             // Actualizar el perfil del usuario
             val updates = mutableMapOf<String, Any>(
@@ -77,10 +95,17 @@ class UserProgressService @Inject constructor(
                 "lastActiveAt" to System.currentTimeMillis()
             )
             
-            // Si subió de nivel, registrar el evento
-            if (newLevel > previousLevel) {
-                Log.d(TAG, "User leveled up! Previous: $previousLevel, New: $newLevel")
-                // Aquí se podría agregar lógica adicional para evolución de Pokémon, etc.
+            // Si evolucionó, actualizar el Pokémon también
+            if (evolutionResult?.evolved == true && evolutionResult.newPokemon != null) {
+                updates["selectedPokemon"] = evolutionResult.newPokemon
+                updates["lastEvolutionLevel"] = newLevel
+                updates["lastEvolutionDate"] = System.currentTimeMillis()
+                Log.d(TAG, "Adding evolution data to updates: ${evolutionResult.previousPokemon} -> ${evolutionResult.newPokemon}")
+            }
+            
+            // Si subió de nivel pero no evolucionó, registrar el evento
+            if (newLevel > previousLevel && evolutionResult?.evolved != true) {
+                Log.d(TAG, "User leveled up but Pokémon did not evolve. Level: $previousLevel -> $newLevel")
             }
             
             // Guardar cambios en Firestore
@@ -123,7 +148,10 @@ class UserProgressService @Inject constructor(
                         leveledUp = newLevel > previousLevel,
                         expGained = experienceGain.totalExp,
                         expBreakdown = breakdownMap,
-                        pokemonLevelUp = pokemonLevelUp
+                        pokemonLevelUp = pokemonLevelUp,
+                        evolved = evolutionResult?.evolved == true,
+                        evolutionName = evolutionResult?.newPokemon,
+                        previousPokemon = evolutionResult?.previousPokemon
                     )
                 }
                 is AuthResult.Error -> {
