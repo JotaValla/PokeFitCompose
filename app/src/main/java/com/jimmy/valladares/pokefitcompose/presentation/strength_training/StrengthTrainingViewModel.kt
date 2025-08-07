@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
 import com.jimmy.valladares.pokefitcompose.data.local.TrainingPreferences
 import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
+import com.jimmy.valladares.pokefitcompose.domain.service.UserProgressService
 import com.jimmy.valladares.pokefitcompose.utils.WorkoutUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class StrengthTrainingViewModel @Inject constructor(
     private val trainingPreferences: TrainingPreferences,
     private val firestoreService: FirestoreService,
-    private val authService: FirebaseAuthService
+    private val authService: FirebaseAuthService,
+    private val userProgressService: UserProgressService
 ) : ViewModel() {
     
     private val _state = MutableStateFlow(StrengthTrainingState())
@@ -359,6 +361,13 @@ class StrengthTrainingViewModel @Inject constructor(
                     when (val result = firestoreService.saveWorkoutSession(workoutSession)) {
                         is com.jimmy.valladares.pokefitcompose.data.result.FirestoreResult.Success -> {
                             Log.d("StrengthTrainingVM", "Workout saved successfully with ID: ${result.data}")
+                            
+                            // Crear WorkoutSession con ID para procesamiento de experiencia
+                            val savedWorkout = workoutSession.copy(id = result.data)
+                            
+                            // Procesar experiencia ganada
+                            processExperienceGain(currentUser.uid, savedWorkout)
+                            
                             val summaryText = WorkoutUtils.getWorkoutSummaryText(workoutSession)
                             _events.emit(StrengthTrainingEvent.WorkoutSaved(result.data))
                             _events.emit(StrengthTrainingEvent.ShowMessage("✅ $summaryText"))
@@ -375,6 +384,43 @@ class StrengthTrainingViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("StrengthTrainingVM", "Exception saving workout", e)
                 _events.emit(StrengthTrainingEvent.ShowMessage("Error al guardar entrenamiento: ${e.message}"))
+            }
+        }
+    }
+    
+    private fun processExperienceGain(userId: String, completedWorkout: com.jimmy.valladares.pokefitcompose.data.model.WorkoutSession) {
+        viewModelScope.launch {
+            try {
+                Log.d("StrengthTrainingVM", "Processing experience gain for workout: ${completedWorkout.id}")
+                
+                val levelUpResult = userProgressService.processWorkoutCompletion(userId, completedWorkout)
+                
+                if (levelUpResult != null) {
+                    Log.d("StrengthTrainingVM", "Experience processed: +${levelUpResult.expGained} EXP")
+                    
+                    // Emitir evento de experiencia ganada
+                    _events.emit(
+                        StrengthTrainingEvent.ExperienceGained(
+                            expGained = levelUpResult.expGained,
+                            leveledUp = levelUpResult.leveledUp,
+                            newLevel = levelUpResult.newLevel,
+                            breakdown = levelUpResult.expBreakdown
+                        )
+                    )
+                    
+                    // Mensaje especial si subió de nivel
+                    if (levelUpResult.leveledUp) {
+                        _events.emit(
+                            StrengthTrainingEvent.ShowMessage(
+                                "🎉 ¡SUBISTE DE NIVEL! Ahora eres nivel ${levelUpResult.newLevel}"
+                            )
+                        )
+                    }
+                } else {
+                    Log.w("StrengthTrainingVM", "Failed to process experience gain")
+                }
+            } catch (e: Exception) {
+                Log.e("StrengthTrainingVM", "Error processing experience gain", e)
             }
         }
     }

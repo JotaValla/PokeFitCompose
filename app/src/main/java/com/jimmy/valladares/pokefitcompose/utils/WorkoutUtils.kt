@@ -105,7 +105,7 @@ object WorkoutUtils {
                 state.exerciseHistory.values.any { rows -> rows.any { it.isCompleted } }
         
         // Verificar que el entrenamiento duró al menos 10 segundos (reducido para testing)
-        val hasMinimumDuration = state.timerSeconds >= 10
+        val hasMinimumDuration = state.timerSeconds >= 3 // Reducido a 3 segundos para testing
         
         Log.d("WorkoutUtils", "Validation - hasCompletedSets: $hasCompletedSets, hasMinimumDuration: $hasMinimumDuration (${state.timerSeconds}s)")
         

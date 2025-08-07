@@ -37,6 +37,7 @@ import com.jimmy.valladares.pokefitcompose.R
 import com.jimmy.valladares.pokefitcompose.data.model.WorkoutSession
 import com.jimmy.valladares.pokefitcompose.presentation.home.BottomNavItem
 import com.jimmy.valladares.pokefitcompose.presentation.navigation.BottomNavigationBar
+import com.jimmy.valladares.pokefitcompose.presentation.strength_training.components.ExperienceGainedDialog
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientEnd
 import com.jimmy.valladares.pokefitcompose.ui.theme.GradientStart
 import com.jimmy.valladares.pokefitcompose.ui.theme.PokeFitComposeTheme
@@ -50,6 +51,12 @@ fun StrengthTrainingScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     
+    // Estados para el diálogo de experiencia
+    var showExperienceDialog by remember { mutableStateOf(false) }
+    var experienceData by remember { 
+        mutableStateOf<StrengthTrainingEvent.ExperienceGained?>(null) 
+    }
+    
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
@@ -62,6 +69,11 @@ fun StrengthTrainingScreen(
                 is StrengthTrainingEvent.WorkoutSaved -> {
                     // Handle workout saved successfully
                     // You could show a different message or navigate somewhere
+                }
+                is StrengthTrainingEvent.ExperienceGained -> {
+                    // Mostrar diálogo de experiencia ganada
+                    experienceData = event
+                    showExperienceDialog = true
                 }
             }
         }
@@ -211,6 +223,20 @@ fun StrengthTrainingScreen(
             onTabSelected = { tab -> onNavigateToTab(tab.route) },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+        
+        // Diálogo de experiencia ganada
+        if (showExperienceDialog && experienceData != null) {
+            ExperienceGainedDialog(
+                expGained = experienceData!!.expGained,
+                leveledUp = experienceData!!.leveledUp,
+                newLevel = experienceData!!.newLevel,
+                breakdown = experienceData!!.breakdown,
+                onDismiss = {
+                    showExperienceDialog = false
+                    experienceData = null
+                }
+            )
+        }
     }
 }
 

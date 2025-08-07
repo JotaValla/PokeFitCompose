@@ -10,9 +10,11 @@ data class UserProfile(
     val selectedPokemon: String = "",
     val currentLevel: Int = 1,
     val currentExp: Int = 0,
+    val totalWorkouts: Int = 0,
     val streakDays: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val lastActiveAt: Long = System.currentTimeMillis()
 )
 
 data class PokemonInfo(

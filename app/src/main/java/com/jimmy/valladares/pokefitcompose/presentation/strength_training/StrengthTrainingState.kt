@@ -64,6 +64,12 @@ sealed class StrengthTrainingEvent {
     object TrainingCompleted : StrengthTrainingEvent()
     data class ShowMessage(val message: String) : StrengthTrainingEvent()
     data class WorkoutSaved(val workoutId: String) : StrengthTrainingEvent()
+    data class ExperienceGained(
+        val expGained: Int,
+        val leveledUp: Boolean,
+        val newLevel: Int,
+        val breakdown: Map<String, Int>
+    ) : StrengthTrainingEvent()
 }
 
 data class ExerciseRow(
