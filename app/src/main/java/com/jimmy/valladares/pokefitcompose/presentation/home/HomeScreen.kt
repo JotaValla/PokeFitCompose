@@ -47,6 +47,11 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     
+    // Refrescar datos cada vez que la pantalla se hace visible
+    LaunchedEffect(Unit) {
+        viewModel.refreshData()
+    }
+    
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {

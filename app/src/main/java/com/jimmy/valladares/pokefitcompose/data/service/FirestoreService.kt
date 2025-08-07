@@ -143,6 +143,33 @@ class FirestoreService @Inject constructor() {
         }
     }
     
+    suspend fun getUserWorkoutsInRange(
+        userId: String, 
+        startDate: Long, 
+        endDate: Long
+    ): List<WorkoutSession> {
+        return try {
+            Log.d(TAG, "Getting workouts for user: $userId between $startDate and $endDate")
+            
+            val documents = firestore.collection(WORKOUTS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .whereGreaterThanOrEqualTo("completedAt", startDate)
+                .whereLessThanOrEqualTo("completedAt", endDate)
+                .get()
+                .await()
+            
+            val workouts = documents.documents.mapNotNull { document ->
+                document.toObject(WorkoutSession::class.java)
+            }.sortedByDescending { it.completedAt }
+            
+            Log.d(TAG, "Retrieved ${workouts.size} workouts for user in date range")
+            workouts
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting user workouts in range", e)
+            emptyList()
+        }
+    }
+    
     suspend fun getWorkoutSummary(userId: String): WorkoutSummary? {
         return try {
             Log.d(TAG, "Getting workout summary for user: $userId")
