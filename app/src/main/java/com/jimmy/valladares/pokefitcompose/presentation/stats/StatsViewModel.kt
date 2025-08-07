@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
 import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
 import com.jimmy.valladares.pokefitcompose.data.model.PokemonData
+import com.jimmy.valladares.pokefitcompose.domain.service.ExperienceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val firestoreService: FirestoreService,
-    private val authService: FirebaseAuthService
+    private val authService: FirebaseAuthService,
+    private val experienceService: ExperienceService
 ) : ViewModel() {
     
     private val _state = MutableStateFlow(StatsState())
@@ -39,15 +41,18 @@ class StatsViewModel @Inject constructor(
                             it.key == profile.selectedPokemon 
                         }
                         
-                        // Calcular experiencia total: (nivel - 1) * 1000 + experiencia actual
-                        val totalExperience = (profile.currentLevel - 1) * 1000 + profile.currentExp
+                        // Calcular experiencia total usando el sistema de progresión exponencial
+                        val totalExperience = experienceService.calculateTotalExperience(
+                            profile.currentLevel, 
+                            profile.currentExp
+                        )
                         
                         _state.value = _state.value.copy(
                             pokemonName = pokemonInfo?.name ?: "Eevee",
                             selectedPokemon = profile.selectedPokemon,
                             currentLevel = profile.currentLevel,
                             currentExp = profile.currentExp,
-                            maxExp = calculateExpForNextLevel(profile.currentLevel),
+                            maxExp = experienceService.getExpForNextLevel(profile.currentLevel),
                             totalExp = totalExperience,
                             totalLevelsGained = profile.currentLevel - 1
                         )
@@ -105,7 +110,4 @@ class StatsViewModel @Inject constructor(
         }
     }
     
-    private fun calculateExpForNextLevel(currentLevel: Int): Int {
-        return 1000 // Por simplicidad, cada nivel requiere 1000 EXP
-    }
 }

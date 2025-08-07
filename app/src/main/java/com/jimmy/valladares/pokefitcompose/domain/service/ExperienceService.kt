@@ -251,4 +251,16 @@ class ExperienceService @Inject constructor() {
             else -> 1000 + ((currentLevel - 6) * 400)
         }
     }
+    
+    /**
+     * Calcula la experiencia total acumulada basada en el nivel y experiencia actual
+     * Toma en cuenta la progresión exponencial de cada nivel
+     */
+    fun calculateTotalExperience(currentLevel: Int, currentExp: Int): Int {
+        // Experiencia acumulada de niveles anteriores
+        val previousLevelsExp = getExpForCurrentLevel(currentLevel)
+        
+        // Experiencia total = EXP de niveles anteriores + EXP actual del nivel
+        return previousLevelsExp + currentExp
+    }
 }
