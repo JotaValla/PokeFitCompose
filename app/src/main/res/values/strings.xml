@@ -21,7 +21,7 @@
     <string name="trainings">Entrenamientos</string>
     <string name="current_streak">Racha actual</string>
     <string name="next_level_in">Próximo nivel en</string>
-    
+
     <!-- Days of the week (abbreviated) -->
     <string name="monday_short">Lun</string>
     <string name="tuesday_short">Mar</string>
@@ -142,7 +142,7 @@
     <string name="error_user_not_auth">Error: Usuario no autenticado</string>
     
     <!-- Stats Screen -->
-    <string name="stats_title">📊 Estadísticas</string>
+    <string name="stats_title">Estadísticas</string>
     <string name="coming_soon">Próximamente...</string>
     
     <!-- Profile Screen -->

@@ -220,9 +220,9 @@ private fun PokemonHeader(
             val pokemonAssetPath = if (selectedPokemon.isNotBlank()) {
                 "file:///android_asset/${selectedPokemon}.gif"
             } else {
-                "file:///android_asset/eevee.gif" // Fallback por defecto
+                //"file:///android_asset/eevee.gif" // Fallback por defecto
             }
-            
+
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(pokemonAssetPath)
