@@ -27,7 +27,7 @@ class HomeViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
-
+    //eventos del home
     private val _events = Channel<HomeEvent>()
     val events: Flow<HomeEvent> = _events.receiveAsFlow()
 
