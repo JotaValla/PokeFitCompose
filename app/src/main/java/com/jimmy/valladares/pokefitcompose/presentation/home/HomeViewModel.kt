@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.jimmy.valladares.pokefitcompose.data.auth.FirebaseAuthService
 import com.jimmy.valladares.pokefitcompose.data.service.FirestoreService
 import com.jimmy.valladares.pokefitcompose.domain.service.UserProgressService
+import com.jimmy.valladares.pokefitcompose.domain.service.ExperienceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -20,7 +21,8 @@ import java.text.SimpleDateFormat
 class HomeViewModel @Inject constructor(
     private val authService: FirebaseAuthService,
     private val firestoreService: FirestoreService,
-    private val userProgressService: UserProgressService
+    private val userProgressService: UserProgressService,
+    private val experienceService: ExperienceService
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -62,9 +64,6 @@ class HomeViewModel @Inject constructor(
                     val userProfile = firestoreService.getUserProfile(currentUser.uid)
                     
                     if (userProfile != null) {
-                        // Obtener estadísticas reales del usuario
-                        val progressInfo = userProgressService.getUserProgressInfo(currentUser.uid)
-                        
                         // Obtener entrenamientos de hoy
                         val todayTrainings = getTodayTrainingsCount(currentUser.uid)
                         
@@ -77,12 +76,13 @@ class HomeViewModel @Inject constructor(
                         val selectedPokemon = userProfile.selectedPokemon?.takeIf { it.isNotBlank() } ?: "eevee"
                         val pokemonName = getPokemonName(selectedPokemon)
                         
-                        // Usar datos reales del progreso si están disponibles
-                        val currentLevel = progressInfo?.currentLevel ?: userProfile.currentLevel
-                        val currentExp = progressInfo?.currentExp ?: userProfile.currentExp
-                        val expToNextLevel = progressInfo?.expNeededForNext ?: 100
+                        // Usar directamente los valores del perfil de Firebase (igual que StatsScreen)
+                        val currentLevel = userProfile.currentLevel
+                        val currentExp = userProfile.currentExp
+                        val maxExp = experienceService.getExpForNextLevel(currentLevel)
+                        val expToNextLevel = maxExp - currentExp
 
-                        println("HomeViewModel: Loading real data - Level: $currentLevel, EXP: $currentExp, Next: $expToNextLevel")
+                        println("HomeViewModel: Loading Firebase data - Level: $currentLevel, EXP: $currentExp, Next: $expToNextLevel")
 
                         _state.update {
                             it.copy(
@@ -91,7 +91,7 @@ class HomeViewModel @Inject constructor(
                                 pokemonName = pokemonName,
                                 currentLevel = currentLevel,
                                 currentExp = currentExp,
-                                maxExp = progressInfo?.expForNextLevel ?: calculateMaxExp(currentLevel),
+                                maxExp = maxExp,
                                 streakDays = currentStreak,
                                 weeklyProgress = weeklyProgress,
                                 todayTrainings = todayTrainings,
