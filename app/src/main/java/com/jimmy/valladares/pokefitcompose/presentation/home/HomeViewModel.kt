@@ -62,9 +62,9 @@ class HomeViewModel @Inject constructor(
                 val currentUser = authService.currentUser
                 if (currentUser != null) {
                     val userProfile = firestoreService.getUserProfile(currentUser.uid)
-                    
+                    //verificacion si el usuario existe.
                     if (userProfile != null) {
-                        // Obtener entrenamientos de hoy
+                        //recupero el entrenamiento.
                         val todayTrainings = getTodayTrainingsCount(currentUser.uid)
                         
                         // Obtener racha actual y progreso semanal
@@ -143,7 +143,8 @@ class HomeViewModel @Inject constructor(
             val currentState = _state.value
             val newExp = currentState.currentExp + expGained
             val maxExp = currentState.maxExp
-            
+            //verificar si se ha llegado al maximo de experincia para el nivel, posterior a esto se
+            //se sube el nivel
             if (newExp >= maxExp) {
                 // Level up!
                 val newLevel = currentState.currentLevel + 1
